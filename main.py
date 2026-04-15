@@ -2,12 +2,14 @@ import streamlit as st
 import numpy as np
 import base64
 from gtts import gTTS
-import os
+import io
+import random
+import string
 
-# Sahifa sozlamalari
-st.set_page_config(page_title="L1GHTDREAM v1.0", layout="wide")
+# 1. SAHIFA SOZLAMALARI
+st.set_page_config(page_title="L1GHTDREAM v2.0 | Deep Neural Analyzer", layout="wide")
 
-# Orqa fon o'rnatish
+# 2. ORQA FON
 def set_bg(file):
     with open(file, "rb") as f:
         data = f.read()
@@ -17,64 +19,105 @@ def set_bg(file):
     .stApp {{
         background-image: url("data:image/png;base64,{bin_str}");
         background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
     }}
     .main .block-container {{
         background-color: rgba(0, 0, 0, 0.85);
         color: #00FF00;
         border-radius: 20px;
-        padding: 50px;
+        padding: 40px;
         border: 2px solid #00FF00;
+        box-shadow: 0 0 25px #00FF00;
+    }}
+    .stTextInput>div>div>input {{
+        background-color: #0e1117;
+        color: #00FF00;
+        border: 1px solid #00FF00;
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# bg.jpg faylini tekshirish
 try:
     set_bg('bg.jpg')
 except:
-    st.error("bg.jpg topilmadi!")
+    st.warning("bg.jpg topilmadi.")
 
-# Ovoz berish funksiyasi
+# 3. OVOZ FUNKSIYASI (Yo'g'on ovoz hiylasi bilan)
 def speak(text):
     try:
-        tts = gTTS(text=text, lang='uz')
-        tts.save("voice.mp3")
-        st.audio("voice.mp3", format='audio/mp3', autoplay=True)
-    except:
-        st.warning("Ovozli funksiya yuklanmadi.")
+        # O'zbekcha matnni biroz sekinroq o'qitish orqali yo'g'on effekt beramiz
+        tts = gTTS(text=text, lang='uz', slow=True) 
+        audio_fp = io.BytesIO()
+        tts.write_to_fp(audio_fp)
+        audio_fp.seek(0)
+        st.audio(audio_fp, format='audio/mp3', autoplay=True)
+    except Exception as e:
+        st.error(f"Ovozli xatolik: {e}")
 
-# L1GHTDREAM Interfeysi
-st.title("⚡ L1GHTDREAM: Neural Analyzer")
-st.write("Tizim tayyor. Parol murakkabligini tahlil qilish uchun ma'lumot kiriting.")
+# 4. PAROLNI MURAKKABLASHTIRISH FUNKSIYASI
+def strengthen_password(old_pwd):
+    # Parolga maxsus belgilar va sonlar qo'shish
+    chars = "!@#$%^&*"
+    enhanced = old_pwd + random.choice(chars) + str(random.randint(10, 99))
+    if not any(c.isupper() for c in enhanced):
+        enhanced = enhanced.capitalize()
+    return enhanced
 
-pwd = st.text_input("Parolni kiriting:", type="password")
+# 5. ASOSIY QISM
+st.title("⚡ L1GHTDREAM v2.0: Deep Neural Breach Analyzer")
+st.write("---")
+
+pwd = st.text_input("ANALIZ UCHUN PAROL KIRITING:", type="password")
 
 if pwd:
-    # 6-topshiriq: Tokenizatsiya
-    st.write(f"**NLP Tokenlar:** `{list(pwd)}`")
-
-    # 1-topshiriq: Perceptron (Hisob-kitob)
-    x = np.array([len(pwd), any(c.isupper() for c in pwd), any(not c.isalnum() for c in pwd)])
-    w = np.array([0.7, 1.3, 2.0]) 
-    z = np.dot(x, w) - 5.0
-
-    # 2-topshiriq: Sigmoid
+    # NLP Tahlili
+    st.markdown("### 🔍 Deep Analysis...")
+    
+    # Neyron tarmog'i hisobi
+    has_upper = any(c.isupper() for c in pwd)
+    has_special = any(not c.isalnum() for c in pwd)
+    length = len(pwd)
+    
+    x = np.array([length, 1 if has_upper else 0, 1 if has_special else 0])
+    w = np.array([0.8, 1.5, 2.5])
+    z = np.dot(x, w) - 6.0
     res = 1 / (1 + np.exp(-z))
 
     st.markdown("---")
+    
+    # 1. NATIJA VA TAVSIYALAR
+    tavsiyalar = []
+    if length < 10: tavsiyalar.append("Parol uzunligini kamida 12 ta belgiga yetkazing.")
+    if not has_upper: tavsiyalar.append("Kamida bitta KATTA harf qo'shing.")
+    if not has_special: tavsiyalar.append("Maxsus belgilar qo'shing (masalan: !, @, #, $).")
+    
     if res > 0.7:
-        natija_matni = "L1GHTDREAM tahlili: Parol xavfsiz. Tizimga kirishga ruxsat berildi."
-        st.success(f"✅ {natija_matni}")
+        status_msg = "Tahlil tugadi. Parol xavfsiz. Kirishga ruxsat berildi."
+        st.success(f"✅ {status_msg}")
     else:
-        natija_matni = "Diqqat! Neyron tarmog'i zaiflikni aniqladi. Parolni darhol kuchaytiring!"
-        st.error(f"❌ {natija_matni}")
+        status_msg = "Diqqat! Parol juda zaif. Tizim xavf ostida!"
+        st.error(f"❌ {status_msg}")
+        
+        # Tavsiyalarni ko'rsatish
+        st.subheader("🛠️ XAKKER TAVSIYASI:")
+        for t in tavsiyalar:
+            st.write(f"• {t}")
+        
+        # Murakkablashtirilgan variant
+        new_pwd = strengthen_password(pwd)
+        st.info(f"💡 Tavsiya etilgan yangi parol: `{new_pwd}`")
+        status_msg += " Tavsiyalarni bajaring va yangi paroldan foydalaning."
 
-    if st.button("OVOZLI NATIJA 🔊"):
-        speak(natija_matni)
+    # 2. OVOZLI CHIQISH
+    if st.button("Tizim xulosasini eshitish 🔊"):
+        speak(status_msg)
 
-# Nazariy javoblar (Topshiriq uchun)
+# 6. SIDEBAR JAVOBLARI
 with st.sidebar:
-    st.header("Amaliy javoblar")
-    st.write("**Forward:** Ma'lumotning o'tishi.")
-    st.write("**Backprop:** Xatoni tuzatish.")
-    st.write("**CNN vs RNN:** CNN rasm, RNN matn uchun.")
+    st.header("L1GHTDREAM Info")
+    st.write("Dasturchi: Raxmatov Badriddin")
+    st.markdown("""
+    **Neyron tarmoq:** Sigmoid funksiyasi asosida ishlaydi.
+    **NLP:** Matnni tokenlarga ajratish orqali tahlil qiladi.
+    """)
