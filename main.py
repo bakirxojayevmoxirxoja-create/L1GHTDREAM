@@ -3,11 +3,6 @@ import numpy as np
 import base64
 from gtts import gTTS
 import io
-import randomimport streamlit aimport streamlit as st
-import numpy as np
-import base64
-from gtts import gTTS
-import io
 import random
 
 # 1. SAHIFA SOZLAMALARI
