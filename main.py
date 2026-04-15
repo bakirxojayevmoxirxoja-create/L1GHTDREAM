@@ -3,7 +3,135 @@ import numpy as np
 import base64
 from gtts import gTTS
 import io
+import randomimport streamlit as st
+import numpy as np
+import base64
+from gtts import gTTS
+import io
 import random
+
+# 1. SAHIFA SOZLAMALARI
+st.set_page_config(page_title="L1GHTDREAM v2.0 | Moxirxo'ja", layout="wide")
+
+# 2. DIZAYN (Hacker Terminal Style)
+def set_bg(file):
+    with open(file, "rb") as f:
+        data = f.read()
+    bin_str = base64.b64encode(data).decode()
+    st.markdown(f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/png;base64,{bin_str}");
+        background-size: cover;
+        background-attachment: fixed;
+    }}
+    /* Markaziy blok dizayni */
+    .main .block-container {{
+        background-color: rgba(0, 0, 0, 0.93) !important;
+        border: 2px solid #00FF00;
+        box-shadow: 0 0 20px #00FF00;
+        border-radius: 15px;
+        padding: 50px;
+    }}
+    /* Sidebar dizayni (Chap tomon) */
+    [data-testid="stSidebar"] {{
+        background-color: rgba(0, 20, 0, 0.95) !important;
+        border-right: 2px solid #00FF00;
+    }}
+    .sidebar-text {{
+        color: #00FF00 !important;
+        font-family: 'Courier New', monospace;
+    }}
+    /* Yozuvlar va tavsiyalar ko'rinishi */
+    .hacker-msg {{
+        color: #00FF00 !important;
+        background-color: rgba(0, 50, 0, 0.5);
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px black;
+    }}
+    input {{
+        background-color: #000 !important;
+        color: #00FF00 !important;
+        border: 1px solid #00FF00 !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+try:
+    set_bg('bg.jpg')
+except:
+    pass
+
+# 3. OVOZ FUNKSIYASI (BARQAROR VARIANT)
+def speak(text_uz, text_en):
+    try:
+        # Avval o'zbekchani sinab ko'ramiz
+        tts = gTTS(text=text_uz, lang='uz', slow=False)
+        fp = io.BytesIO()
+        tts.write_to_fp(fp)
+        fp.seek(0)
+        st.audio(fp, format='audio/mp3', autoplay=True)
+    except:
+        # Agar uz ishlamasa, inglizcha "Security System" ovozini beramiz
+        tts = gTTS(text=text_en, lang='en', slow=True) # Slow yo'g'on ovoz beradi
+        fp = io.BytesIO()
+        tts.write_to_fp(fp)
+        fp.seek(0)
+        st.audio(fp, format='audio/mp3', autoplay=True)
+        st.warning("System Note: Voice synthesized in Security Mode (EN).")
+
+# 4. ASOSIY QISM
+st.markdown("<h1 style='color:#00FF00; font-family:monospace;'>$ L1GHTDREAM_NEURAL_SHIELD_v2.0</h1>", unsafe_allow_html=True)
+
+pwd = st.text_input("ENTER ACCESS KEY:", type="password")
+
+if pwd:
+    # Neyron tarmog'i algoritmi
+    length = len(pwd)
+    has_upper = any(c.isupper() for c in pwd)
+    has_spec = any(not c.isalnum() for c in pwd)
+    
+    z = (length * 0.8) + (has_upper * 2.0) + (has_spec * 3.0) - 10.0
+    res = 1 / (1 + np.exp(-z))
+
+    if res > 0.75:
+        msg_uz = "Ruxsat berildi. Tizim xavfsiz."
+        msg_en = "Access granted. System secure."
+        st.success(f"✅ {msg_uz}")
+    else:
+        msg_uz = "Diqqat! Parol zaif. Kirish rad etildi!"
+        msg_en = "Warning! Weak password. Access denied!"
+        st.error(f"❌ {msg_uz}")
+        
+        # TAVSIYALAR (Yaxshilangan ko'rinish)
+        st.markdown("<div class='hacker-msg'>🛠️ TERMINAL TAVSIYASI:</div>", unsafe_allow_html=True)
+        t_list = []
+        if length < 12: t_list.append("Uzunlikni 12 taga yetkazing.")
+        if not has_upper: t_list.append("KATTA harf qo'shing.")
+        if not has_spec: t_list.append("Maxsus belgi (!, @, #) qo'shing.")
+        
+        for t in t_list:
+            st.markdown(f"<p style='color:#00FF00; margin-left:20px;'> > {t}</p>", unsafe_allow_html=True)
+            
+        # Murakkab variant
+        suggested = pwd + random.choice("@#$%") + str(random.randint(10, 99))
+        st.info(f"💡 Taklif: {suggested}")
+        msg_uz += " Parolni murakkablashtiring."
+
+    if st.button("VOICE OUTPUT 🔊"):
+        speak(msg_uz, msg_en)
+
+# 5. SIDEBAR (Hacker Style)
+with st.sidebar:
+    st.markdown("<h2 class='sidebar-text'>TERMINAL INFO</h2>", unsafe_allow_html=True)
+    st.write("---")
+    st.markdown(f"<p class='sidebar-text'><b>DEVELOPER:</b> Bakirxo'jayev Moxirxo'ja</p>", unsafe_allow_html=True)
+    st.markdown("<p class='sidebar-text'><b>ENCRYPTION:</b> AES-256 Neural</p>", unsafe_allow_html=True)
+    st.markdown("<p class='sidebar-text'><b>STATUS:</b> ACTIVE</p>", unsafe_allow_html=True)
+    st.write("---")
+    st.markdown("<p style='font-size:12px; color:#00FF00;'>Sigmoid funksiyasi orqali har bir belgi xavfsizlik darajasi tahlil qilinmoqda.</p>", unsafe_allow_html=True)
 import string
 
 # 1. SAHIFA SOZLAMALARI (Moxirxo'ja nashri)
