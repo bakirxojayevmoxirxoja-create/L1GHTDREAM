@@ -6,9 +6,9 @@ import io
 import random
 
 # 1. SAHIFA SOZLAMALARI
-st.set_page_config(page_title="L1GHTDREAM v2.0 | Neural Shield", layout="wide")
+st.set_page_config(page_title="L1GHTDREAM v2.0 | Moxirxo'ja Edition", layout="wide")
 
-# 2. DIZAYN (Yozuvlarni o'qish uchun qora soya va bloklar)
+# 2. DIZAYN (Hacker Terminal Style)
 def set_bg(file):
     with open(file, "rb") as f:
         data = f.read()
@@ -20,25 +20,33 @@ def set_bg(file):
         background-size: cover;
         background-position: center;
     }}
+    /* Markaziy panelni yanada xakerona qilish */
     .main .block-container {{
-        background-color: rgba(0, 0, 0, 0.9); /* To'qroq qora fon */
+        background-color: rgba(0, 0, 0, 0.92);
         color: #00FF00;
-        border-radius: 15px;
-        padding: 35px;
         border: 2px solid #00FF00;
-        box-shadow: 0 0 30px #00FF00;
+        box-shadow: 0 0 40px #00FF00;
+        border-radius: 10px;
+        padding: 50px;
     }}
-    .hacker-alert {{
+    /* Parol kiritish maydonini xaker terminalidek qilish */
+    input {{
+        background-color: #000000 !important;
+        color: #00FF00 !important;
+        border: 1px solid #00FF00 !important;
+        font-family: 'Courier New', monospace !important;
+        font-size: 20px !important;
+        letter-spacing: 3px;
+    }}
+    .hacker-font {{
+        font-family: 'Courier New', monospace;
+        color: #00FF00;
+        text-shadow: 0 0 10px #00FF00;
+    }}
+    .error-text {{
         color: #FF0000 !important;
         font-weight: bold;
-        text-shadow: 2px 2px 5px black;
-        font-size: 24px;
-    }}
-    .hacker-safe {{
-        color: #00FF00 !important;
-        font-weight: bold;
-        text-shadow: 2px 2px 5px black;
-        font-size: 24px;
+        text-shadow: 0 0 10px #FF0000;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -48,61 +56,66 @@ try:
 except:
     pass
 
-# 3. OVOZ FUNKSIYASI (Yo'g'on ovoz effekti)
+# 3. OVOZ FUNKSIYASI (Barqaror variant)
 def speak(text_uz):
     try:
-        # slow=True ovozni sekinlashtiradi va robotik-yo'g'on qiladi
+        # gTTS orqali sekinlashtirilgan (robotik) ovoz
         tts = gTTS(text=text_uz, lang='uz', slow=True)
         audio_fp = io.BytesIO()
         tts.write_to_fp(audio_fp)
         audio_fp.seek(0)
         st.audio(audio_fp, format='audio/mp3', autoplay=True)
-    except:
-        st.error("Ovozli tizimda xatolik!")
+    except Exception:
+        st.error("Terminal: Ovozli modul yuklanishida xatolik aniqlandi!")
 
 # 4. ASOSIY LOGIKA
-st.title("⚡ L1GHTDREAM: Neural Analyzer")
+st.markdown("<h1 class='hacker-font'>⚡ L1GHTDREAM: Neural Firewall</h1>", unsafe_allow_html=True)
+st.write("---")
 
-pwd = st.text_input("TAHLIL UCHUN PAROL KIRITING:", type="password")
+# Terminal ko'rinishidagi input
+pwd = st.text_input("SISTEMAGA KIRISH UCHUN KODNI KIRITING (PASSWORD):", type="password")
 
 if pwd:
-    # Qattiq neyron tarmog'i (Hisob-kitobni o'zgartirdik)
+    # Qattiq neyron tarmog'i (Bias -12.0)
     length = len(pwd)
     upper = 1 if any(c.isupper() for c in pwd) else 0
     special = 1 if any(not c.isalnum() for c in pwd) else 0
     digit = 1 if any(c.isdigit() for c in pwd) else 0
     
-    # Neyron tarmog'i og'irliklari: Uzunlik juda muhim (0.9), belgi (2.5)
-    # Endi bias -10.0, ya'ni parol juda kuchli bo'lishi shart!
-    z = (length * 0.8) + (upper * 2.0) + (special * 3.0) + (digit * 1.5) - 10.0
-    res = 1 / (1 + np.exp(-z)) # Sigmoid
+    # Neyron tarmog'i hisob-kitobi
+    z = (length * 0.9) + (upper * 2.5) + (special * 4.0) + (digit * 2.0) - 12.0
+    res = 1 / (1 + np.exp(-z))
 
-    st.markdown("---")
+    st.markdown("### 🔍 ANALYZING BIOMETRIC DATA...")
     
-    if res > 0.8: # Faqat juda kuchli parollarga ruxsat
-        msg = "Tahlil tugadi. Parol xavfsiz. Tizimga kirishga ruxsat berildi."
-        st.markdown(f"<p class='hacker-safe'>✅ {msg}</p>", unsafe_allow_html=True)
+    if res > 0.85:
+        msg = "TIZIMGA KIRISH TASDIQLANDI. XUSH KELIBSIZ, MOXIRXO'JA."
+        st.success(msg)
         st.balloons()
     else:
-        msg = "Diqqat! Neyron tarmog'i zaiflikni aniqladi. Kirish rad etildi!"
-        st.markdown(f"<p class='hacker-alert'>❌ {msg}</p>", unsafe_allow_html=True)
+        msg = "XATOLIK! PAROL ZAIF. TIZIMGA KIRISH RAD ETILDI!"
+        st.markdown(f"<p class='error-text'>❌ {msg}</p>", unsafe_allow_html=True)
         
         # Tavsiyalar
-        st.subheader("🛠️ XAKKER TAVSIYASI:")
-        if length < 10: st.write("• Parol juda qisqa (kamida 12 ta belgi qiling).")
-        if not upper: st.write("• Kamida bitta KATTA harf qo'shing.")
-        if not special: st.write("• Maxsus belgi (!, @, #, $) ishlatilmagan.")
+        st.markdown("<h3 class='hacker-font'>🛠️ XAKKER TAVSIYASI:</h3>", unsafe_allow_html=True)
+        if length < 12: st.write("> Parol uzunligini oshiring (min: 12)")
+        if not upper: st.write("> Kamida bitta katta harf ishlating")
+        if not special: st.write("> Maxsus belgilardan foydalaning (!, @, #)")
         
-        # Murakkablashtirish
-        s_pwd = pwd + random.choice("!@#$%") + str(random.randint(100, 999))
-        st.info(f"💡 Murakkab variant: {s_pwd}")
-        msg += " Parolni darhol kuchaytiring!"
+        # Murakkablashtirilgan taklif
+        suggested = pwd + random.choice("@#$%") + str(random.randint(100, 999))
+        st.info(f"💡 REKOMENDATSIYA: {suggested}")
+        msg += " Parolni zudlik bilan murakkablashtiring."
 
-    if st.button("OVOZLI XULOSA 🔊"):
+    if st.button("XULOSANI ESHITISH 🔊"):
         speak(msg)
 
-# Sidebar
+# 5. SIDEBAR (To'g'ri ism bilan)
 with st.sidebar:
-    st.header("L1GHTDREAM Info")
-    st.write("Dasturchi: Raxmatov Badriddin")
-    st.write("Neyron: Sigmoid (Threshold: 0.8)")
+    st.markdown("<h2 class='hacker-font'>SYSTEM INFO</h2>", unsafe_allow_html=True)
+    st.write("---")
+    st.write("**LOYIHA:** L1GHTDREAM v2.0")
+    st.write("**TUZUVCHI:** Bakirxo'jayev Moxirxo'ja")
+    st.write("**STATUS:** ENCRYPTED")
+    st.write("---")
+    st.info("Neyron tarmoq Sigmoid funksiyasi yordamida har bir kiritilgan belgini xavfsizlik darajasini tahlil qiladi.")
