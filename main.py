@@ -67,8 +67,8 @@ def speak(text_uz, text_en):
         fp.seek(0)
         st.audio(fp, format='audio/mp3', autoplay=True)
 
-# 4. ASOSIY QISM
-st.markdown("<h1 style='color:#00FF00; font-family:monospace;'>$ NEURAL_ANALYZER_v2.1</h1>", unsafe_allow_html=True)
+# 4. ASOSIY QISM (SARLAVHA O'ZGARTIRILDI)
+st.markdown("<h1 style='color:#00FF00; font-family:monospace;'>$ L1GHTDREAM_v2.1</h1>", unsafe_allow_html=True)
 
 pwd = st.text_input("PASSWORD_INPUT >", type="password")
 
@@ -80,7 +80,7 @@ if pwd:
     has_digit = any(c.isdigit() for c in pwd)
     has_spec = any(c in string.punctuation for c in pwd)
     
-    # Sigmoid Ballar
+    # Sigmoid Ballar mantiqi
     score = 0
     if length >= 12: score += 4
     if has_upper: score += 2
@@ -112,13 +112,11 @@ if pwd:
         # MUKAMMAL TAKLIF GENERATORI
         sug = pwd
         if not has_upper:
-            # Agar birinchi harf bo'lsa katta qilamiz, bo'lmasa tasodifiy katta harf qo'shamiz
             sug = sug[0].upper() + sug[1:] if sug else "P"
         if not has_lower: sug += "w"
         if not has_digit: sug += str(random.randint(10, 99))
         if not has_spec: sug += "@"
         
-        # 12 ta belgiga yetkazish
         while len(sug) < 12:
             sug += random.choice(string.ascii_lowercase + string.digits)
             
@@ -132,7 +130,7 @@ if pwd:
 with st.sidebar:
     st.markdown("<h2 class='sidebar-content'>SYSTEM_INFO</h2>", unsafe_allow_html=True)
     st.write("---")
-    st.markdown("<p class='sidebar-content'><b>DEVELOPER:</b> Bakirxo'jayev Moxirxo'ja</p>", unsafe_allow_html=True)
+    st.markdown(f"<p class='sidebar-content'><b>DEVELOPER:</b> Bakirxo'jayev Moxirxo'ja</p>", unsafe_allow_html=True)
     st.markdown("<p class='sidebar-content'><b>STATUS:</b> ENCRYPTED</p>", unsafe_allow_html=True)
     st.write("---")
-    st.markdown("<p style='color:#00FF00; font-size:11px;'>Neyron tahlil: Har bir belgi entropiyasi tekshirilmoqda.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#00FF00; font-size:11px;'>L1GHTDREAM: Neyron tahlil tizimi faol.</p>", unsafe_allow_html=True)
