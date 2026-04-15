@@ -7,9 +7,9 @@ import random
 import string
 
 # 1. SAHIFA SOZLAMALARI
-st.set_page_config(page_title="L1GHTDREAM v2.1 | Moxirxo'ja", layout="wide")
+st.set_page_config(page_title="L1GHTDREAM v3.0 | Deep Learning", layout="wide")
 
-# 2. HACKER TERMINAL DIZAYNI
+# 2. DIZAYN (Hacker Style)
 def set_bg(file):
     try:
         with open(file, "rb") as f:
@@ -17,38 +17,13 @@ def set_bg(file):
         bin_str = base64.b64encode(data).decode()
         st.markdown(f"""
         <style>
-        .stApp {{
-            background-image: url("data:image/png;base64,{bin_str}");
-            background-size: cover;
-            background-attachment: fixed;
-        }}
-        .main .block-container {{
-            background-color: rgba(0, 0, 0, 0.94) !important;
-            border: 2px solid #00FF00;
-            box-shadow: 0 0 25px #00FF00;
-            border-radius: 12px;
-            padding: 45px;
-        }}
-        [data-testid="stSidebar"] {{
-            background-color: rgba(0, 5, 0, 0.98) !important;
-            border-right: 2px solid #00FF00;
-        }}
-        .sidebar-content {{
-            color: #00FF00 !important;
-            font-family: 'Courier New', monospace;
-        }}
-        input {{
-            background-color: #000 !important;
-            color: #00FF00 !important;
-            border: 1px solid #00FF00 !important;
-            font-family: 'Courier New', monospace !important;
-        }}
-        .hacker-text {{ color: #00FF00 !important; font-family: 'Courier New', monospace; }}
-        .crit-text {{ color: #FF3333 !important; font-weight: bold; font-family: 'Courier New', monospace; }}
+        .stApp {{ background-image: url("data:image/png;base64,{bin_str}"); background-size: cover; }}
+        .main .block-container {{ background-color: rgba(0, 0, 0, 0.9); border: 2px solid #00FF00; padding: 40px; border-radius: 15px; }}
+        .hacker-text {{ color: #00FF00; font-family: 'Courier New', monospace; }}
+        .formula {{ background-color: #111; padding: 10px; border-left: 3px solid #00FF00; color: #00FF00; font-size: 14px; margin: 10px 0; }}
         </style>
         """, unsafe_allow_html=True)
-    except:
-        pass
+    except: pass
 
 set_bg('bg.jpg')
 
@@ -61,76 +36,75 @@ def speak(text_uz, text_en):
         fp.seek(0)
         st.audio(fp, format='audio/mp3', autoplay=True)
     except:
-        tts = gTTS(text=text_en, lang='en', slow=True)
+        tts = gTTS(text=text_en, lang='en')
         fp = io.BytesIO()
         tts.write_to_fp(fp)
         fp.seek(0)
         st.audio(fp, format='audio/mp3', autoplay=True)
 
-# 4. ASOSIY QISM (SARLAVHA O'ZGARTIRILDI)
-st.markdown("<h1 style='color:#00FF00; font-family:monospace;'>$ L1GHTDREAM_v2.1</h1>", unsafe_allow_html=True)
+# 4. AMALIY TOPSHIRIQLAR INTEGRATSIYASI
+st.markdown("<h1 class='hacker-text'>$ L1GHTDREAM_v3.0: NEURAL LAB</h1>", unsafe_allow_html=True)
 
-pwd = st.text_input("PASSWORD_INPUT >", type="password")
+pwd = st.text_input("TAHLIL UCHUN PAROL KIRITING >", type="password")
 
 if pwd:
-    # Kriteriyalar
-    length = len(pwd)
-    has_upper = any(c.isupper() for c in pwd)
-    has_lower = any(c.islower() for c in pwd)
-    has_digit = any(c.isdigit() for c in pwd)
-    has_spec = any(c in string.punctuation for c in pwd)
+    # A) TOKENIZATSIYA (AMALIY)
+    tokens = list(pwd)
     
-    # Sigmoid Ballar mantiqi
-    score = 0
-    if length >= 12: score += 4
-    if has_upper: score += 2
-    if has_lower: score += 1
-    if has_digit: score += 2
-    if has_spec: score += 2
+    # B) OG'IRLIKLAR (WEIGHTS)
+    w_len, w_upper, w_digit, w_spec = 4.0, 2.5, 2.0, 3.0
     
-    is_strong = (length >= 12 and has_upper and has_lower and has_digit and has_spec)
+    # C) KIRISH QIYMATLARI (INPUTS)
+    x1 = len(pwd)
+    x2 = 1 if any(c.isupper() for c in pwd) else 0
+    x3 = 1 if any(c.isdigit() for c in pwd) else 0
+    x4 = 1 if any(c in string.punctuation for c in pwd) else 0
+    
+    # D) FORWARD PROPAGATION (HISOB-KITOB)
+    z = (x1 * w_len) + (x2 * w_upper) + (x3 * w_digit) + (x4 * w_spec) - 15.0
+    
+    # E) AKTIVATSIYA FUNKSIYALARI (Sigmoid vs ReLU)
+    sigmoid_res = 1 / (1 + np.exp(-z))
+    relu_res = max(0, z)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("<h3 class='hacker-text'>[ 1. FORWARD PROPAGATION ]</h3>", unsafe_allow_html=True)
+        st.write(f"**Tokenlar:** `{tokens}`")
+        st.markdown(f"""<div class='formula'>
+        Z = ({x1}*{w_len}) + ({x2}*{w_upper}) + ({x3}*{w_digit}) + ({x4}*{w_spec}) - 15<br>
+        <b>Natija (Z): {z:.2f}</b>
+        </div>""", unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("<h3 class='hacker-text'>[ 2. ACTIVATION COMPARISON ]</h3>", unsafe_allow_html=True)
+        st.write(f"**Sigmoid (0-1):** `{sigmoid_res:.4f}`")
+        st.write(f"**ReLU (Max 0, Z):** `{relu_res:.4f}`")
+        st.progress(min(float(sigmoid_res), 1.0))
 
     st.write("---")
-    
-    if is_strong:
-        msg_uz = "Parol mukammal! Tizim xavfsiz."
-        msg_en = "Password is perfect! System secure."
-        st.success(f"✅ {msg_uz}")
-    else:
-        msg_uz = "Diqqat! Parol talablarga javob bermaydi."
-        msg_en = "Warning! Weak password detected."
-        st.error(f"❌ {msg_uz}")
-        
-        st.markdown("<h3 class='hacker-text'>[ ANALIZ NATIJASI: YETISHMAYOTGAN ELEMENTLAR ]</h3>", unsafe_allow_html=True)
-        
-        if length < 12: st.markdown(f"<p class='crit-text'>⚠️ QISQA: Kamida 12 belgi kerak (Hozir: {length})</p>", unsafe_allow_html=True)
-        if not has_upper: st.markdown("<p class='crit-text'>⚠️ XATO: Katta harf yo'q!</p>", unsafe_allow_html=True)
-        if not has_lower: st.markdown("<p class='crit-text'>⚠️ XATO: Kichik harf yo'q!</p>", unsafe_allow_html=True)
-        if not has_digit: st.markdown("<p class='crit-text'>⚠️ XATO: Raqam yo'q!</p>", unsafe_allow_html=True)
-        if not has_spec: st.markdown("<p class='crit-text'>⚠️ XATO: Maxsus belgi (!, @, #) yo'q!</p>", unsafe_allow_html=True)
 
-        # MUKAMMAL TAKLIF GENERATORI
-        sug = pwd
-        if not has_upper:
-            sug = sug[0].upper() + sug[1:] if sug else "P"
-        if not has_lower: sug += "w"
-        if not has_digit: sug += str(random.randint(10, 99))
-        if not has_spec: sug += "@"
+    # F) NATIJA VA BACKPROPAGATION TAHLILI
+    if sigmoid_res > 0.8:
+        st.success("✅ TIZIM XAVFSIZ: Neyron tarmog'i parolni yuqori baholadi.")
+        msg = "Parol mukammal. Neyron tarmog'i ijobiy natija berdi."
+    else:
+        st.error("❌ XAVF: Neyron tarmog'i zaiflikni aniqladi!")
+        msg = "Parol zaif. Backpropagation orqali og'irliklarni qayta sozlash tavsiya etiladi."
         
-        while len(sug) < 12:
-            sug += random.choice(string.ascii_lowercase + string.digits)
-            
-        st.info(f"MUKAMMAL VARIANT (NUSXALANG): {sug}")
-        msg_uz += " Tavsiya etilgan variantni ko'ring."
+        # G) BACKPROPAGATION (SIMULATSIYA)
+        st.markdown("<h3 class='hacker-text'>[ 3. BACKPROPAGATION LOG ]</h3>", unsafe_allow_html=True)
+        st.info(f"Xatolik (Loss) aniqlandi. Keyingi iteratsiyada og'irliklar (w) {random.uniform(0.1, 0.5):.2f} ga o'zgarishi kerak.")
 
     if st.button("XULOSANI ESHITISH 🔊"):
-        speak(msg_uz, msg_en)
+        speak(msg, "Neural analysis complete.")
 
-# 5. SIDEBAR
+# 5. SIDEBAR: CNN vs RNN
 with st.sidebar:
-    st.markdown("<h2 class='sidebar-content'>SYSTEM_INFO</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='hacker-text'>LAB_INFO</h2>", unsafe_allow_html=True)
+    st.write("**Arxitektura farqi:**")
+    st.info("**CNN:** Tasvirlar uchun (Spatial data).")
+    st.info("**RNN:** Ketma-ketlik (Parol/Matn) uchun.")
     st.write("---")
-    st.markdown(f"<p class='sidebar-content'><b>DEVELOPER:</b> Bakirxo'jayev Moxirxo'ja</p>", unsafe_allow_html=True)
-    st.markdown("<p class='sidebar-content'><b>STATUS:</b> ENCRYPTED</p>", unsafe_allow_html=True)
-    st.write("---")
-    st.markdown("<p style='color:#00FF00; font-size:11px;'>L1GHTDREAM: Neyron tahlil tizimi faol.</p>", unsafe_allow_html=True)
+    st.write("**Dasturchi:** Bakirxo'jayev M.")
