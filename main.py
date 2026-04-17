@@ -2,10 +2,10 @@ import streamlit as st
 import string
 import random
 
-# 1. TIZIM SOZLAMALARI (O'ZGARMAYDI)
+# 1. TIZIM SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | SECURITY TERMINAL", layout="wide")
 
-# 2. MATRIX FON (IFRAME METHOD - BU QISMGA TEGMA)
+# 2. MATRIX FON (IFRAME METHOD - BU QISM O'ZGARMAS)
 st.markdown("""
 <style>
     .stApp, [data-testid="stHeader"], [data-testid="stAppViewContainer"] { background: transparent !important; }
@@ -86,13 +86,11 @@ if pwd:
     </div>
     """, unsafe_allow_html=True)
     
-    # --- 3. DINAMIK TAVSIYALAR (TO'G'RILANGAN MANTIQ) ---
+    # --- 3. DINAMIK TAVSIYALAR ---
     st.markdown("### [ 2. SECURITY RECOMMENDATIONS ]")
     
-    # Agar hamma shartlar bajarilgan bo'lsa
     if u_count > 0 and d_count > 0 and s_count > 0 and len(pwd) >= 12:
         st.success("✅ TIZIM TO'LIQ HIMOYALANGAN: Barcha kiberxavfsizlik shartlari bajarildi!")
-        st.balloons()
     else:
         col1, col2 = st.columns(2)
         with col1:
@@ -104,6 +102,16 @@ if pwd:
 
     st.error(f"🛑 CRACK_TIME (Supercomputer attack): {format_time(current_sec)}")
 
-# 5. SIDEBAR
+# 5. SIDEBAR (RAXMATOV BADRIDDIN & BAKIRXO'JAYEV MOXIRXO'JA)
 with st.sidebar:
-    st.markdown(f"<div style='color:#0F0; font-family:monospace;'><h2>TERMINAL_INFO</h2><hr><b>OPERATOR:</b> Raxmatov Badriddin<br><b>NICK:</b> LIMITLESS</div>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style='color:#0F0; font-family:monospace;'>
+        <h2>TERMINAL_INFO</h2>
+        <hr style='border-color:#0F0;'>
+        <b>OPERATOR:</b> Raxmatov Badriddin<br>
+        <b>DEVELOPER:</b> Bakirxo'jayev Moxirxo'ja<br>
+        <br>
+        <b>NICK:</b> LIMITLESS<br>
+        <b>STATUS:</b> ENCRYPTED
+    </div>
+    """, unsafe_allow_html=True)
