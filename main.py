@@ -5,7 +5,7 @@ import random
 # 1. TIZIM SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | SECURITY TERMINAL", layout="wide")
 
-# 2. MATRIX FON (IFRAME METHOD - BU QISMGA TEGMA)
+# 2. MATRIX FON (IFRAME METHOD)
 st.markdown("""
 <style>
     .stApp, [data-testid="stHeader"], [data-testid="stAppViewContainer"] { background: transparent !important; }
@@ -44,7 +44,7 @@ st.markdown("""
 "></iframe>
 """, unsafe_allow_html=True)
 
-# 3. YORDAMCHI FUNKSIYALAR
+# 3. VAQTNI FORMATLASH
 def format_time(sec):
     if sec <= 0: return "DARHOL"
     if sec < 1: return f"{sec:.4f} sek"
@@ -86,11 +86,12 @@ if pwd:
     </div>
     """, unsafe_allow_html=True)
     
-    # --- 3. DINAMIK TAVSIYALAR ---
+    # --- 3. DINAMIK TAVSIYALAR VA SHARCHALAR ---
     st.markdown("### [ 2. SECURITY RECOMMENDATIONS ]")
     
     if u_count > 0 and d_count > 0 and s_count > 0 and len(pwd) >= 12:
         st.success("✅ TIZIM TO'LIQ HIMOYALANGAN: Barcha kiberxavfsizlik shartlari bajarildi!")
+        st.balloons() # Sharchalar effekti qaytdi!
     else:
         col1, col2 = st.columns(2)
         with col1:
