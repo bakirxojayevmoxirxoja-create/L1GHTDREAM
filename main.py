@@ -5,7 +5,7 @@ import random
 # 1. TIZIM SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | SECURITY TERMINAL", layout="wide")
 
-# 2. MATRIX FON (IFRAME METHOD - BU QISM O'ZGARMAS)
+# 2. MATRIX FON (IFRAME METHOD - BU QISMGA TEGMA)
 st.markdown("""
 <style>
     .stApp, [data-testid="stHeader"], [data-testid="stAppViewContainer"] { background: transparent !important; }
@@ -102,13 +102,12 @@ if pwd:
 
     st.error(f"🛑 CRACK_TIME (Supercomputer attack): {format_time(current_sec)}")
 
-# 5. SIDEBAR (RAXMATOV BADRIDDIN & BAKIRXO'JAYEV MOXIRXO'JA)
+# 5. SIDEBAR (FAQAT DEVELOPER BAKIRXO'JAYEV MOXIRXO'JA)
 with st.sidebar:
     st.markdown(f"""
     <div style='color:#0F0; font-family:monospace;'>
         <h2>TERMINAL_INFO</h2>
         <hr style='border-color:#0F0;'>
-        <b>OPERATOR:</b> Raxmatov Badriddin<br>
         <b>DEVELOPER:</b> Bakirxo'jayev Moxirxo'ja<br>
         <br>
         <b>NICK:</b> LIMITLESS<br>
