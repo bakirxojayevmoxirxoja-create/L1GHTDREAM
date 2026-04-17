@@ -1,26 +1,29 @@
 import streamlit as st
-import random
 import string
 
 # 1. SAHIFA SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM", layout="wide")
 
-# 2. MATRIX FON VA CSS (Oq ekranni yo'qotish va Matrixni orqaga qulflash)
-def apply_matrix_theme():
-    st.markdown("""
-    <style>
-    /* Matrixni orqaga, kontentni oldinga chiqarish */
+# 2. MATRIX FON VA MAJBURIY SHAFFAF DIZAYN (Transparent Engine)
+st.markdown("""
+<style>
+    /* Streamlit'ning oq fonini butunlay yo'q qilish */
+    [data-testid="stAppViewContainer"], [data-testid="stHeader"], .stApp {
+        background: transparent !important;
+    }
+    
+    /* Matrix Canvas - Eng orqada qulflangan */
     #matrix-canvas {
         position: fixed;
         top: 0; left: 0;
         width: 100vw; height: 100vh;
-        z-index: -1;
+        z-index: -2;
+        background-color: black;
     }
-    .stApp { background: transparent; }
-    
-    /* Asosiy blok dizayni */
+
+    /* Asosiy kontent bloki */
     .main .block-container {
-        background-color: rgba(0, 0, 0, 0.9) !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
         border: 2px solid #00FF00;
         box-shadow: 0 0 25px #00FF00;
         border-radius: 15px;
@@ -28,33 +31,38 @@ def apply_matrix_theme():
         margin-top: 30px;
         color: #00FF00;
     }
-    
+
     .header-title {
         text-align: center; color: #00FF00; font-family: 'Courier New', monospace;
         font-size: 60px; font-weight: bold; text-shadow: 0 0 15px #00FF00;
         margin-bottom: 25px;
     }
-    
+
     .token-box {
         border: 1px solid #00FF00; padding: 10px; margin: 4px;
         display: inline-block; background: rgba(0, 255, 0, 0.1);
         font-family: 'Courier New', monospace;
     }
 
+    /* Sidebar dizayni */
     [data-testid="stSidebar"] {
         background-color: rgba(0, 0, 0, 0.95) !important;
         border-right: 2px solid #00FF00;
     }
-    .sidebar-text { color: #00FF00; font-family: 'Courier New', monospace; }
-    </style>
+</style>
 
-    <canvas id="matrix-canvas"></canvas>
-    
-    <script>
+<canvas id="matrix-canvas"></canvas>
+
+<script>
     const canvas = document.getElementById('matrix-canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
 
     const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ';
     const fontSize = 16;
@@ -75,44 +83,33 @@ def apply_matrix_theme():
         }
     }
     setInterval(draw, 35);
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
-    </script>
-    """, unsafe_allow_html=True)
+</script>
+""", unsafe_allow_html=True)
 
-apply_matrix_theme()
-
-# 3. ASOSIY QISM
+# 3. ASOSIY INTERFEYS (L1GHTDREAM)
 st.markdown("<div class='header-title'>L1GHTDREAM</div>", unsafe_allow_html=True)
 
 pwd = st.text_input("PASSWORD_INPUT >", type="password")
 
 if pwd:
-    # 1. Tokenizatsiya (Xatosiz for-loop bilan)
     st.markdown("<h3 style='color:#00FF00;'>[ 1. NEURAL TOKENIZATION ]</h3>", unsafe_allow_html=True)
-    html_str = ""
-    for t in list(pwd):
-        html_str += f"<div class='token-box'>{t}</div>"
-    st.markdown(f"<div>{html_str}</div>", unsafe_allow_html=True)
     
-    # 2. Statistika
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown(f"""
-        <div style='border-left: 3px solid #00FF00; padding-left: 15px; background: rgba(0,255,0,0.05); padding: 10px;'>
-            > Jami belgilar: {len(pwd)} ta<br>
-            > Katta harflar: {sum(1 for c in pwd if c.isupper())} ta<br>
-            > Raqamlar: {sum(1 for c in pwd if c.isdigit())} ta
-        </div>
-        """, unsafe_allow_html=True)
+    # Xatosiz oddiy tokenizatsiya
+    token_str = ""
+    for char in pwd:
+        token_str += f"<div class='token-box'>{char}</div>"
+    st.markdown(f"<div>{token_str}</div>", unsafe_allow_html=True)
     
-    with col2:
-        if len(pwd) < 12:
-            st.warning("💡 Uzunlikni 12 taga yetkazish tavsiya etiladi.")
+    # Statistika
+    st.markdown(f"""
+    <div style='border-left: 3px solid #00FF00; padding-left: 15px; background: rgba(0,255,0,0.05); padding: 10px; margin-top:15px;'>
+        > Jami belgilar: {len(pwd)} ta<br>
+        > Katta harflar: {sum(1 for c in pwd if c.isupper())} ta<br>
+        > Raqamlar: {sum(1 for c in pwd if c.isdigit())} ta
+    </div>
+    """, unsafe_allow_html=True)
 
-    # 3. Buzish vaqti
+    # Buzish vaqti
     charset = 0
     if any(c.islower() for c in pwd): charset += 26
     if any(c.isupper() for c in pwd): charset += 26
@@ -122,18 +119,15 @@ if pwd:
     comb = (charset ** len(pwd)) if len(pwd) > 0 else 0
     sec = comb / 100_000_000_000
     
-    if sec < 60: brute = f"{sec:.4f} sek"
-    elif sec < 3600: brute = f"{sec/60:.2f} min"
-    else: brute = f"{int(sec/31536000)} yil"
-    
+    brute = f"{sec:.4f} sek" if sec < 60 else f"{sec/60:.2f} min" if sec < 3600 else f"{int(sec/31536000)} yil"
     st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {brute}")
 
 # 4. SIDEBAR (Faqat ism va nickname)
 with st.sidebar:
-    st.markdown("<h2 class='sidebar-text'>TERMINAL_INFO</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#00FF00;'>TERMINAL_INFO</h2>", unsafe_allow_html=True)
     st.write("---")
     st.markdown(f"""
-    <div class='sidebar-text'>
+    <div style='color:#00FF00; font-family:monospace;'>
         <b>Dasturchi:</b> Moxirxo'ja<br><br>
         <b>Nickname:</b> LIMITLESS
     </div>
