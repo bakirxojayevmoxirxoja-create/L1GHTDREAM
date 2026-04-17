@@ -37,9 +37,9 @@ def set_design():
     }
     .suggestion-card {
         border: 1px solid #00FF00; padding: 15px; border-radius: 8px;
-        background: rgba(0, 255, 0, 0.08); text-align: center;
+        background: rgba(0, 255, 0, 0.12); text-align: center;
         margin: 5px; font-family: 'Courier New', monospace;
-        color: #00FF00; font-weight: bold;
+        color: #00FF00; font-size: 18px;
     }
     [data-testid="stSidebar"] { background-color: #050505 !important; border-right: 1px solid #00FF00; }
     .sidebar-text { color: #00FF00 !important; font-family: 'Courier New', monospace; }
@@ -48,18 +48,33 @@ def set_design():
 
 set_design()
 
-# 3. AQLLI TAVSIYA GENERATORI (Sizning parolingiz asosida)
+# 3. KUCHAYTIRILGAN AQLLI TAVSIYA GENERATORI
 def generate_smart_suggestions(base_pwd):
     suggestions = []
-    # Parol elementlarini tahlil qilish
     specs = "!@#$%^&*"
+    
     for _ in range(3):
-        # Asl parolingizni olib, unga tasodifiy belgilar va raqamlar qo'shamiz
-        suffix = "".join(random.choice(string.digits + specs) for _ in range(4))
-        prefix = random.choice(string.ascii_uppercase)
-        # O'xshashlikni saqlash
-        new_sug = f"{prefix}{base_pwd}{suffix}"
-        suggestions.append(new_sug)
+        # Asl parolingni saqlagan holda tarkibni boyitish
+        sug = base_pwd
+        
+        # 1. Agar katta harf yo'q bo'lsa - boshiga qo'shish
+        if not any(c.isupper() for c in sug):
+            sug = random.choice(string.ascii_uppercase) + sug
+            
+        # 2. Agar raqam yo'q bo'lsa - raqam qo'shish
+        if not any(c.isdigit() for c in sug):
+            sug = sug + random.choice(string.digits)
+            
+        # 3. Agar maxsus belgi yo'q bo'lsa - belgi qo'shish
+        if not any(c in string.punctuation for c in sug):
+            sug = sug + random.choice(specs)
+            
+        # 4. UZUNLIKNI TEKSHIRISH: Agar hali ham 12 tadan kam bo'lsa, to'ldirish
+        while len(sug) < 12:
+            extra = random.choice(string.ascii_letters + string.digits + specs)
+            sug += extra
+            
+        suggestions.append(sug)
     return suggestions
 
 # 4. VAQT HISOBLASH
@@ -84,13 +99,12 @@ st.markdown("<div class='centered-title'>L1GHTDREAM</div>", unsafe_allow_html=Tr
 pwd = st.text_input("PASSWORD_INPUT >", type="password")
 
 if pwd:
-    # Tokenlar
+    # 1. Tokenizatsiya
     st.markdown("<h3 style='color:#00FF00;'>[ 1. NEURAL TOKENIZATION ]</h3>", unsafe_allow_html=True)
-    tokens = list(pwd)
-    token_html = "".join([f"<div class='token-box'>{t}</div>" for t in tokens])
+    token_html = "".join([f"<div class='token-box'>{t}</div>" for t in list(pwd)])
     st.markdown(token_html, unsafe_allow_html=True)
     
-    # Statistika
+    # 2. Statistika
     u_count = sum(1 for c in pwd if c.isupper())
     l_count = sum(1 for c in pwd if c.islower())
     d_count = sum(1 for c in pwd if c.isdigit())
@@ -106,20 +120,19 @@ if pwd:
     </div>
     """, unsafe_allow_html=True)
 
+    # 3. Tahlil va Tavsiyalar
     is_ok = len(pwd) >= 12 and u_count > 0 and d_count > 0 and s_count > 0
     st.write("---")
     
     if is_ok:
         st.success("✅ STATUS: ENCRYPTED AND SECURE")
     else:
-        # Alert va Brute Force
-        brute = get_brute_time(pwd)
-        st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {brute}")
+        st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {get_brute_time(pwd)}")
         
-        # AQLLI TAVSIYALAR
         st.markdown("<h3 style='color:#00FF00;'>[ 2. SMART SUGGESTIONS ]</h3>", unsafe_allow_html=True)
-        st.write("Sizning parolingiz asosida kuchaytirilgan variantlar:")
+        st.write("Tizim talablariga javob beruvchi, sizga o'xshash variantlar:")
         
+        # Aqlli tavsiyalar endi qat'iy tekshiruvdan o'tadi
         smart_sugs = generate_smart_suggestions(pwd)
         cols = st.columns(3)
         for i, sug in enumerate(smart_sugs):
@@ -131,4 +144,3 @@ with st.sidebar:
     st.write("---")
     st.markdown("<p class='sidebar-text'><b>DASTURCHI:</b><br>Bakirxo'jayev Moxirxo'ja</p>", unsafe_allow_html=True)
     st.markdown("<p class='sidebar-text'><b>NICKNAME:</b><br>LIMITLESS</p>", unsafe_allow_html=True)
-    st.write("---")
