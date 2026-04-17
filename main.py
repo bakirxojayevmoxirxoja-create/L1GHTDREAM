@@ -5,12 +5,15 @@ import random
 # 1. SAHIFA SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM", layout="wide")
 
-# 2. MATRIX FON VA CSS (Shaffoflik va fonni qulflash)
+# 2. MATRIX ENGINE & ULTIMATE TRANSPARENCY
 st.markdown("""
 <style>
+    /* Streamlit'ning barcha qatlamlarini shaffof qilish */
     [data-testid="stAppViewContainer"], [data-testid="stHeader"], .stApp {
         background: transparent !important;
     }
+    
+    /* Matrix Canvas - Eng pastki qatlamda */
     #matrix-canvas {
         position: fixed;
         top: 0; left: 0;
@@ -18,6 +21,8 @@ st.markdown("""
         z-index: -2;
         background-color: black;
     }
+
+    /* Asosiy blok dizayni */
     .main .block-container {
         background-color: rgba(0, 0, 0, 0.9) !important;
         border: 2px solid #00FF00;
@@ -27,16 +32,19 @@ st.markdown("""
         margin-top: 20px;
         color: #00FF00;
     }
+
     .header-title {
         text-align: center; color: #00FF00; font-family: 'Courier New', monospace;
         font-size: 65px; font-weight: bold; text-shadow: 0 0 15px #00FF00;
         letter-spacing: 10px; margin-bottom: 30px;
     }
+
     .token-box {
-        border: 1px solid #00FF00; padding: 10px; margin: 4px;
+        border: 1.5px solid #00FF00; padding: 10px; margin: 4px;
         display: inline-block; background: rgba(0, 255, 0, 0.1);
         font-family: 'Courier New', monospace;
     }
+
     [data-testid="stSidebar"] {
         background-color: rgba(0, 0, 0, 0.95) !important;
         border-right: 2px solid #00FF00;
@@ -47,12 +55,18 @@ st.markdown("""
 <script>
     const canvas = document.getElementById('matrix-canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
     const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵ';
     const fontSize = 16;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
+
     function draw() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -71,6 +85,7 @@ st.markdown("""
 
 # 3. ASOSIY QISM
 st.markdown("<div class='header-title'>L1GHTDREAM</div>", unsafe_allow_html=True)
+
 pwd = st.text_input("PASSWORD_INPUT >", type="password")
 
 if pwd:
@@ -79,17 +94,17 @@ if pwd:
     t_html = "".join([f"<div class='token-box'>{c}</div>" for c in pwd])
     st.markdown(f"<div>{t_html}</div>", unsafe_allow_html=True)
     
-    # --- BUZISH VAQTI VA MATEMATIK HISOB ---
+    # --- MATEMATIK HISOB-KITOBLAR ---
     pool = 0
     if any(c.islower() for c in pwd): pool += 26
     if any(c.isupper() for c in pwd): pool += 26
     if any(c.isdigit() for c in pwd): pool += 10
     if any(c in string.punctuation for c in pwd): pool += 32
     
-    comb = (pool ** len(pwd)) if len(pwd) > 0 else 0
-    sec = comb / 100_000_000_000 # 100 mlrd urinish/sek
+    current_comb = (pool ** len(pwd)) if len(pwd) > 0 else 0
+    current_sec = current_comb / 100_000_000_000
     
-    # --- STATISTIKA VA DINAMIK MASLAHATLAR ---
+    # --- STATISTIKA VA TO'G'RI DINAMIK MASLAHATLAR ---
     c1, c2 = st.columns(2)
     with c1:
         st.markdown(f"""
@@ -100,14 +115,17 @@ if pwd:
         """, unsafe_allow_html=True)
     
     with c2:
-        # Haqiqiy vaqt ortishini hisoblash (pool + qo'shimcha belgilar)
+        # Haqiqiy vaqt ortishini hisoblash
         if not any(c.isupper() for c in pwd):
-            extra_sec = ((pool + 26) ** len(pwd) / 100_000_000_000) - sec
-            st.info(f"💡 Katta harf qo'shilsa: +{extra_sec:.4f} sek")
+            future_sec = ((pool + 26) ** len(pwd)) / 100_000_000_000
+            diff = future_sec - current_sec
+            val = f"{diff:.4f} sek" if diff < 60 else f"{diff/60:.2f} min"
+            st.info(f"💡 Katta harf qo'shilsa: +{val}")
         if len(pwd) < 12:
-            st.warning("💡 Uzunlikni 12 taga yetkazish tavsiya etiladi!")
+            st.warning("💡 Uzunlikni 12 taga yetkazish tavsiya etiladi.")
 
-    brute = f"{sec:.4f} sek" if sec < 60 else f"{sec/60:.2f} min" if sec < 3600 else f"{int(sec/31536000)} yil"
+    # Buzish vaqti
+    brute = f"{current_sec:.4f} sek" if current_sec < 60 else f"{current_sec/60:.2f} min" if current_sec < 3600 else f"{int(current_sec/31536000)} yil"
     st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {brute}")
 
     # --- 2. SMART SUGGESTIONS ---
