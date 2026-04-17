@@ -3,67 +3,58 @@ import numpy as np
 import base64
 import random
 import string
+import time
 
 # 1. SAHIFA SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | Bakirxo'jayev", layout="wide")
 
-# 2. DIZAYN (Hacker Terminal)
-def set_bg(file):
-    try:
-        with open(file, "rb") as f:
-            data = f.read()
-        bin_str = base64.b64encode(data).decode()
-        st.markdown(f"""
-        <style>
-        .stApp {{
-            background-image: url("data:image/png;base64,{bin_str}");
-            background-size: cover;
-            background-attachment: fixed;
-        }}
-        .main .block-container {{
-            background-color: rgba(0, 0, 0, 0.94) !important;
-            border: 2px solid #00FF00;
-            box-shadow: 0 0 25px #00FF00;
-            border-radius: 12px;
-            padding: 45px;
-        }}
-        /* SARLAVHA: FAQAT L1GHTDREAM VA O'RTADA */
-        .centered-title {{
-            text-align: center;
-            color: #00FF00;
-            font-family: 'Courier New', monospace;
-            font-size: 60px;
-            font-weight: bold;
-            margin-top: -20px;
-            margin-bottom: 40px;
-            text-shadow: 0 0 20px #00FF00;
-            letter-spacing: 5px;
-        }}
-        .hacker-text {{ color: #00FF00 !important; font-family: 'Courier New', monospace; }}
-        .token-box {{ border: 1px solid #00FF00; padding: 10px; margin: 5px; display: inline-block; background: rgba(0, 255, 0, 0.1); color: #00FF00; }}
-        .brute-box {{ background-color: rgba(50, 0, 0, 0.8); border: 2px solid #FF3333; color: #FF3333; padding: 20px; font-size: 20px; border-radius: 10px; }}
-        input {{ background-color: #000 !important; color: #00FF00 !important; border: 1px solid #00FF00 !important; font-size: 18px !important; }}
-        </style>
-        """, unsafe_allow_html=True)
-    except: pass
+# 2. KREATIV DIZAYN (Custom CSS)
+def set_design():
+    st.markdown(f"""
+    <style>
+    .stApp {{ background-color: #000; color: #00FF00; }}
+    .main .block-container {{
+        background-color: rgba(0, 0, 0, 0.95);
+        border: 2px solid #00FF00;
+        box-shadow: 0 0 30px #00FF00;
+        border-radius: 15px;
+        padding: 50px;
+    }}
+    .centered-title {{
+        text-align: center; color: #00FF00; font-family: 'Courier New', monospace;
+        font-size: 70px; font-weight: bold; text-shadow: 0 0 25px #00FF00;
+        letter-spacing: 10px; margin-bottom: 50px;
+    }}
+    .hacker-card {{
+        border: 1px solid #00FF00; padding: 20px; border-radius: 10px;
+        background: rgba(0, 255, 0, 0.05); margin: 10px 0;
+        transition: 0.3s;
+    }}
+    .hacker-card:hover {{ background: rgba(0, 255, 0, 0.15); transform: scale(1.02); }}
+    .token-box {{
+        border: 2px solid #00FF00; padding: 12px; margin: 5px;
+        display: inline-block; color: #00FF00; font-weight: bold;
+        box-shadow: 0 0 10px #00FF00;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
 
-set_bg('bg.jpg')
+set_design()
 
-# 3. VAQTNI HISOBLASH FUNKSIYASI
-def calculate_brute_time(pwd):
+# 3. VAQTNI HISOBLASH (Realistik kombinatorika)
+def get_brute_time(pwd):
     length = len(pwd)
     if length == 0: return "0 sekund"
-    charset = 0
-    if any(c.islower() for c in pwd): charset += 26
-    if any(c.isupper() for c in pwd): charset += 26
-    if any(c.isdigit() for c in pwd): charset += 10
-    if any(c in string.punctuation for c in pwd): charset += 32
+    charset = sum([26 if any(c.islower() for c in pwd) else 0,
+                  26 if any(c.isupper() for c in pwd) else 0,
+                  10 if any(c.isdigit() for c in pwd) else 0,
+                  32 if any(c in string.punctuation for c in pwd) else 0])
     combinations = charset ** length
-    seconds = combinations / 100_000_000_000
-    if seconds < 0.01: return "0.0001 sekund"
-    if seconds < 3600: return f"{int(seconds/60)} daqiqa"
-    if seconds < 86400: return f"{int(seconds/3600)} soat"
-    return f"{int(seconds/31536000)} yil"
+    sec = combinations / 100_000_000_000
+    if sec < 0.01: return "Sekunddan qisqa"
+    if sec < 3600: return f"{int(sec/60)} daqiqa"
+    if sec < 86400: return f"{int(sec/3600)} soat"
+    return f"{int(sec/31536000)} yil"
 
 # 4. ASOSIY QISM
 st.markdown("<div class='centered-title'>L1GHTDREAM</div>", unsafe_allow_html=True)
@@ -71,33 +62,45 @@ st.markdown("<div class='centered-title'>L1GHTDREAM</div>", unsafe_allow_html=Tr
 pwd = st.text_input("PASSWORD_INPUT >", type="password")
 
 if pwd:
-    # 1. Tokenizatsiya
-    st.markdown("<h3 class='hacker-text'>[ 1. NEURAL TOKENIZATION ]</h3>", unsafe_allow_html=True)
-    tokens = list(pwd)
-    token_html = "".join([f"<div class='token-box'>{t}</div>" for t in tokens])
-    st.markdown(token_html, unsafe_allow_html=True)
-    
-    # 2. Tahlil va Brute-force
-    has_upper = any(c.isupper() for c in pwd)
-    has_digit = any(c.isdigit() for c in pwd)
-    has_spec = any(c in string.punctuation for c in pwd)
-    
-    st.write("---")
-    
-    if len(pwd) >= 12 and has_upper and has_digit and has_spec:
-        st.success("✅ TIZIM XAVFSIZ.")
-    else:
-        brute_time = calculate_brute_time(pwd)
-        st.markdown(f"<div class='brute-box'>[ ALERT ] HUJUM SIMULYATSIYASI: <b>{brute_time}</b></div>", unsafe_allow_html=True)
-        
-        st.markdown("<h3 class='hacker-text'>[ ANALYSIS ERRORS ]</h3>", unsafe_allow_html=True)
-        if len(pwd) < 12: st.error(f"⚠️ Kamida 12 ta belgi (Hozir: {len(pwd)})")
-        if not has_upper: st.error("⚠️ Katta harf (A-Z) yo'q!")
-        if not has_digit: st.error("⚠️ Raqam (0-9) yo'q!")
-        if not has_spec: st.error("⚠️ Maxsus belgi yo'q!")
+    # KREATIV SCANNING EFFEKTI
+    with st.spinner('NEURAL NETWORK IS SCANNING...'):
+        time.sleep(1) # Skanerlash animatsiyasi uchun
 
-# 5. SIDEBAR
-with st.sidebar:
-    st.markdown("<h2 class='hacker-text'>SYSTEM_INFO</h2>", unsafe_allow_html=True)
+    # 1. TOKENIZATSIYA (Vizuallash)
+    st.markdown("<h3 style='color:#00FF00;'>[ SYSTEM_LOG: TOKENIZING ]</h3>", unsafe_allow_html=True)
+    cols = st.columns(len(pwd) if len(pwd) < 15 else 15)
+    for i, char in enumerate(list(pwd)[:15]):
+        cols[i % 15].markdown(f"<div class='token-box'>{char}</div>", unsafe_allow_html=True)
+    
+    # 2. TAHLIL
+    has_up, has_dig, has_sp = any(c.isupper() for c in pwd), any(c.isdigit() for c in pwd), any(c in string.punctuation for c in pwd)
+    is_ok = len(pwd) >= 12 and has_up and has_dig and has_sp
+
     st.write("---")
-    st.markdown("<p class='hacker-text'><b>DEV:</b> Bakirxo'jayev M.</p>", unsafe_allow_html=True)
+    
+    if is_ok:
+        st.balloons() # G'alaba animatsiyasi
+        st.success("✅ STATUS: ENCRYPTED AND SECURE")
+    else:
+        # BRUTE FORCE DATA
+        st.warning(f"⚠️ SECURITY ALERT: Buzish vaqti - {get_brute_time(pwd)}")
+        
+        st.markdown("<h3 style='color:#00FF00;'>[ RECOMMENDED_VARIANTS ]</h3>", unsafe_allow_html=True)
+        col_a, col_b, col_c = st.columns(3)
+        
+        # KREATIV TAKLIFLAR
+        for col in [col_a, col_b, col_c]:
+            sug = "".join(random.choice(string.ascii_letters + string.digits + "@#$") for _ in range(14))
+            col.markdown(f"""
+            <div class='hacker-card'>
+                <small>GEN_KEY:</small><br>
+                <b>{sug}</b>
+            </div>
+            """, unsafe_allow_html=True)
+
+# 5. SIDEBAR (INFO)
+with st.sidebar:
+    st.markdown("<h2 style='color:#00FF00;'>TERMINAL_INFO</h2>", unsafe_allow_html=True)
+    st.info(f"Dasturchi: Bakirxo'jayev M.")
+    st.info(f"Yosh: 19") #
+    st.info(f"Algoritm: Deep Neural Analysis")
