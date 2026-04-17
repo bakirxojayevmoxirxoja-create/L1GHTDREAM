@@ -7,7 +7,7 @@ import string
 # 1. SAHIFA SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | LIMITLESS", layout="wide")
 
-# 2. DIZAYN
+# 2. DIZAYN (Hacker Style)
 def set_design():
     st.markdown("""
     <style>
@@ -39,7 +39,7 @@ def set_design():
         border: 1px solid #00FF00; padding: 15px; border-radius: 8px;
         background: rgba(0, 255, 0, 0.12); text-align: center;
         margin: 5px; font-family: 'Courier New', monospace;
-        color: #00FF00; font-size: 18px;
+        color: #00FF00; font-size: 16px;
     }
     [data-testid="stSidebar"] { background-color: #050505 !important; border-right: 1px solid #00FF00; }
     .sidebar-text { color: #00FF00 !important; font-family: 'Courier New', monospace; }
@@ -48,50 +48,41 @@ def set_design():
 
 set_design()
 
-# 3. KUCHAYTIRILGAN AQLLI TAVSIYA GENERATORI
-def generate_smart_suggestions(base_pwd):
-    suggestions = []
-    specs = "!@#$%^&*"
-    
-    for _ in range(3):
-        # Asl parolingni saqlagan holda tarkibni boyitish
-        sug = base_pwd
-        
-        # 1. Agar katta harf yo'q bo'lsa - boshiga qo'shish
-        if not any(c.isupper() for c in sug):
-            sug = random.choice(string.ascii_uppercase) + sug
-            
-        # 2. Agar raqam yo'q bo'lsa - raqam qo'shish
-        if not any(c.isdigit() for c in sug):
-            sug = sug + random.choice(string.digits)
-            
-        # 3. Agar maxsus belgi yo'q bo'lsa - belgi qo'shish
-        if not any(c in string.punctuation for c in sug):
-            sug = sug + random.choice(specs)
-            
-        # 4. UZUNLIKNI TEKSHIRISH: Agar hali ham 12 tadan kam bo'lsa, to'ldirish
-        while len(sug) < 12:
-            extra = random.choice(string.ascii_letters + string.digits + specs)
-            sug += extra
-            
-        suggestions.append(sug)
-    return suggestions
-
-# 4. VAQT HISOBLASH
-def get_brute_time(pwd):
+# 3. KUCHAYTIRILGAN VAQT HISOBLASH (Sekundlargacha aniq)
+def get_precise_brute_time(pwd):
     length = len(pwd)
     if length == 0: return "0 sekund"
+    
     charset = 0
     if any(c.islower() for c in pwd): charset += 26
     if any(c.isupper() for c in pwd): charset += 26
     if any(c.isdigit() for c in pwd): charset += 10
     if any(c in string.punctuation for c in pwd): charset += 32
+    
     combinations = charset ** length
-    sec = combinations / 100_000_000_000
-    if sec < 0.01: return "0.0001 sekund"
-    if sec < 3600: return f"{int(sec/60)} daqiqa"
-    if sec < 86400: return f"{int(sec/3600)} soat"
+    # Sekundiga 100 milliard urinish (Superkompyuter tezligi)
+    sec = combinations / 100_000_000_000 
+    
+    if sec < 1: return f"{sec:.4f} sekund (Deyarli darhol!)"
+    if sec < 60: return f"{sec:.2f} sekund"
+    if sec < 3600: return f"{(sec/60):.2f} daqiqa"
+    if sec < 86400: return f"{(sec/3600):.2f} soat"
+    if sec < 31536000: return f"{(sec/86400):.2f} kun"
     return f"{int(sec/31536000)} yil"
+
+# 4. KUCHAYTIRILGAN TAVSIYALAR
+def generate_limitless_suggestions(base_pwd):
+    suggestions = []
+    specs = "!@#$%^&*"
+    for _ in range(3):
+        # Boshiga bitta katta harf, oxiriga belgi va raqam qo'shish
+        sug = random.choice(string.ascii_uppercase) + base_pwd
+        sug += random.choice(specs) + random.choice(string.digits)
+        # 12 tadan kam bo'lsa, to'ldirish
+        while len(sug) < 13:
+            sug += random.choice(string.ascii_letters + string.digits + specs)
+        suggestions.append(sug)
+    return suggestions
 
 # 5. ASOSIY QISM
 st.markdown("<div class='centered-title'>L1GHTDREAM</div>", unsafe_allow_html=True)
@@ -120,20 +111,21 @@ if pwd:
     </div>
     """, unsafe_allow_html=True)
 
-    # 3. Tahlil va Tavsiyalar
+    # 3. Tahlil
     is_ok = len(pwd) >= 12 and u_count > 0 and d_count > 0 and s_count > 0
     st.write("---")
     
     if is_ok:
         st.success("✅ STATUS: ENCRYPTED AND SECURE")
     else:
-        st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {get_brute_time(pwd)}")
+        # Buzish vaqti endi 0 daqiqa demaydi!
+        brute_time = get_precise_brute_time(pwd)
+        st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {brute_time}")
         
         st.markdown("<h3 style='color:#00FF00;'>[ 2. SMART SUGGESTIONS ]</h3>", unsafe_allow_html=True)
-        st.write("Tizim talablariga javob beruvchi, sizga o'xshash variantlar:")
+        st.write("Tizim talablariga javob beruvchi kuchaytirilgan variantlar:")
         
-        # Aqlli tavsiyalar endi qat'iy tekshiruvdan o'tadi
-        smart_sugs = generate_smart_suggestions(pwd)
+        smart_sugs = generate_limitless_suggestions(pwd)
         cols = st.columns(3)
         for i, sug in enumerate(smart_sugs):
             cols[i].markdown(f"<div class='suggestion-card'>{sug}</div>", unsafe_allow_html=True)
