@@ -5,15 +5,14 @@ import random
 # 1. SAHIFA SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM", layout="wide")
 
-# 2. MATRIX ENGINE & ULTIMATE TRANSPARENCY
+# 2. MATRIX ENGINE & DYNAMIC UI (Eng barqaror versiya)
 st.markdown("""
 <style>
-    /* Streamlit'ning barcha qatlamlarini shaffof qilish */
+    /* Streamlit fonini majburan Matrix uchun tayyorlash */
     [data-testid="stAppViewContainer"], [data-testid="stHeader"], .stApp {
         background: transparent !important;
     }
     
-    /* Matrix Canvas - Eng pastki qatlamda */
     #matrix-canvas {
         position: fixed;
         top: 0; left: 0;
@@ -22,32 +21,32 @@ st.markdown("""
         background-color: black;
     }
 
-    /* Asosiy blok dizayni */
+    /* Asosiy oyna dizayni */
     .main .block-container {
-        background-color: rgba(0, 0, 0, 0.9) !important;
+        background-color: rgba(0, 0, 0, 0.92) !important;
         border: 2px solid #00FF00;
-        box-shadow: 0 0 25px #00FF00;
+        box-shadow: 0 0 30px #00FF00;
         border-radius: 15px;
-        padding: 40px;
-        margin-top: 20px;
+        padding: 50px;
+        margin-top: 15px;
         color: #00FF00;
     }
 
     .header-title {
         text-align: center; color: #00FF00; font-family: 'Courier New', monospace;
-        font-size: 65px; font-weight: bold; text-shadow: 0 0 15px #00FF00;
-        letter-spacing: 10px; margin-bottom: 30px;
+        font-size: 70px; font-weight: bold; text-shadow: 0 0 20px #00FF00;
+        letter-spacing: 12px; margin-bottom: 30px;
     }
 
     .token-box {
-        border: 1.5px solid #00FF00; padding: 10px; margin: 4px;
-        display: inline-block; background: rgba(0, 255, 0, 0.1);
-        font-family: 'Courier New', monospace;
+        border: 2px solid #00FF00; padding: 12px; margin: 5px;
+        display: inline-block; background: rgba(0, 255, 0, 0.15);
+        font-family: 'Courier New', monospace; font-weight: bold;
     }
 
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.95) !important;
-        border-right: 2px solid #00FF00;
+        background-color: rgba(0, 0, 0, 0.98) !important;
+        border-right: 3px solid #00FF00;
     }
 </style>
 
@@ -55,14 +54,10 @@ st.markdown("""
 <script>
     const canvas = document.getElementById('matrix-canvas');
     const ctx = canvas.getContext('2d');
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵ';
+    const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ';
     const fontSize = 16;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
@@ -72,6 +67,7 @@ st.markdown("""
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#0F0';
         ctx.font = fontSize + 'px monospace';
+
         for (let i = 0; i < drops.length; i++) {
             const text = chars[Math.floor(Math.random() * chars.length)];
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
@@ -80,33 +76,40 @@ st.markdown("""
         }
     }
     setInterval(draw, 35);
+    window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
 </script>
 """, unsafe_allow_html=True)
 
-# 3. ASOSIY QISM
+# 3. ASOSIY LOGIKA (Matematika va UI)
 st.markdown("<div class='header-title'>L1GHTDREAM</div>", unsafe_allow_html=True)
 
-pwd = st.text_input("PASSWORD_INPUT >", type="password")
+pwd = st.text_input("ENTER ACCESS CODE >", type="password")
+
+def get_time_str(sec):
+    if sec < 1: return f"{sec:.4f} sek"
+    if sec < 60: return f"{sec:.2f} sek"
+    if sec < 3600: return f"{sec/60:.2f} min"
+    if sec < 86400: return f"{sec/3600:.2f} soat"
+    return f"{int(sec/31536000)} yil"
 
 if pwd:
-    # --- 1. NEURAL TOKENIZATION ---
+    # --- NEURAL TOKENIZATION ---
     st.markdown("<h3 style='color:#00FF00;'>[ 1. NEURAL TOKENIZATION ]</h3>", unsafe_allow_html=True)
     t_html = "".join([f"<div class='token-box'>{c}</div>" for c in pwd])
     st.markdown(f"<div>{t_html}</div>", unsafe_allow_html=True)
     
-    # --- MATEMATIK HISOB-KITOBLAR ---
+    # --- VAQT HISOBI (Pool-based calculation) ---
     pool = 0
     if any(c.islower() for c in pwd): pool += 26
     if any(c.isupper() for c in pwd): pool += 26
     if any(c.isdigit() for c in pwd): pool += 10
     if any(c in string.punctuation for c in pwd): pool += 32
     
-    current_comb = (pool ** len(pwd)) if len(pwd) > 0 else 0
-    current_sec = current_comb / 100_000_000_000
+    # Joriy vaqt
+    current_sec = (pool ** len(pwd)) / 10**11 if len(pwd) > 0 else 0
     
-    # --- STATISTIKA VA TO'G'RI DINAMIK MASLAHATLAR ---
-    c1, c2 = st.columns(2)
-    with c1:
+    col1, col2 = st.columns(2)
+    with col1:
         st.markdown(f"""
         <div style='border: 1px solid #00FF00; padding: 15px; background: rgba(0,255,0,0.05);'>
             > Jami: {len(pwd)} ta | Katta: {sum(1 for c in pwd if c.isupper())} ta<br>
@@ -114,28 +117,27 @@ if pwd:
         </div>
         """, unsafe_allow_html=True)
     
-    with c2:
-        # Haqiqiy vaqt ortishini hisoblash
+    with col2:
+        # Haqiqiy farqni hisoblash (Statik emas, dinamik!)
         if not any(c.isupper() for c in pwd):
-            future_sec = ((pool + 26) ** len(pwd)) / 100_000_000_000
+            # Katta harf qo'shilsa pool 26 taga ortadi
+            future_sec = ((pool + 26) ** len(pwd)) / 10**11
             diff = future_sec - current_sec
-            val = f"{diff:.4f} sek" if diff < 60 else f"{diff/60:.2f} min"
-            st.info(f"💡 Katta harf qo'shilsa: +{val}")
+            st.info(f"💡 Katta harf qo'shilsa: +{get_time_str(diff)}")
+        
         if len(pwd) < 12:
-            st.warning("💡 Uzunlikni 12 taga yetkazish tavsiya etiladi.")
+            st.warning("💡 Uzunlikni 12 taga yetkazish xavfsizlikni kalla qildiradi!")
 
-    # Buzish vaqti
-    brute = f"{current_sec:.4f} sek" if current_sec < 60 else f"{current_sec/60:.2f} min" if current_sec < 3600 else f"{int(current_sec/31536000)} yil"
-    st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {brute}")
+    st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {get_time_str(current_sec)}")
 
-    # --- 2. SMART SUGGESTIONS ---
+    # --- SMART SUGGESTIONS ---
     st.markdown("<h3 style='color:#00FF00;'>[ 2. SMART SUGGESTIONS ]</h3>", unsafe_allow_html=True)
     cols = st.columns(3)
     for i in range(3):
         sug = random.choice(string.ascii_uppercase) + pwd + random.choice("!@#") + str(random.randint(0,9))
         cols[i].code(sug)
 
-# 4. SIDEBAR (Faqat ism va nickname)
+# 4. SIDEBAR (Faqat LIMITLESS)
 with st.sidebar:
     st.markdown("<h2 style='color:#00FF00;'>TERMINAL_INFO</h2>", unsafe_allow_html=True)
     st.write("---")
