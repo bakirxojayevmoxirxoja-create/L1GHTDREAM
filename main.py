@@ -1,39 +1,38 @@
 import streamlit as st
 import string
 import random
-import math
 
 # 1. TIZIM SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | SECURITY TERMINAL", layout="wide")
 
-# 2. MATRIX FONNI MAJBURIY ISHLATISH (IFRAME ISOLATION)
+# 2. MATRIX FON (IFRAME METHOD - BU QISM O'ZGARMADI)
 st.markdown("""
 <style>
-    /* Streamlit fonlarini to'liq o'chirish */
     .stApp, [data-testid="stHeader"], [data-testid="stAppViewContainer"] {
         background: transparent !important;
     }
-    html, body { background-color: black !important; margin: 0; padding: 0; }
-
-    /* Matrix fonni orqaga mixlash */
+    html, body { background-color: black !important; }
     .matrix-bg {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        z-index: -1;
-        border: none;
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: -1; border: none;
     }
-
-    /* Terminal bloki dizayni */
     .main .block-container {
         background-color: rgba(0, 0, 0, 0.93) !important;
         border: 2px solid #00FF00;
         box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
         border-radius: 12px;
-        padding: 40px;
-        margin-top: 30px;
-        color: #00FF00;
-        font-family: 'Courier New', monospace;
+        padding: 40px; margin-top: 30px;
+        color: #00FF00; font-family: 'Courier New', monospace;
+    }
+    /* Tokenizatsiya uchun maxsus boxlar */
+    .token-box {
+        display: inline-block;
+        border: 1px solid #00FF00;
+        padding: 8px 15px;
+        margin: 5px;
+        background: rgba(0, 255, 0, 0.1);
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
     }
 </style>
 
@@ -69,30 +68,46 @@ st.markdown("""
 "></iframe>
 """, unsafe_allow_html=True)
 
-# 3. KIBER-ANALITIKA FUNKSIYALARI
-def get_crack_time(pool, length):
-    # 100 mlrd/sek (Hacker Supercomputer)
-    attempts = pool ** length
-    seconds = attempts / 1e11
-    return seconds
-
+# 3. YORDAMCHI FUNKSIYALAR
 def format_time(sec):
     if sec <= 0: return "DARHOL"
-    if sec < 1: return f"{sec:.5f} sek"
+    if sec < 1: return f"{sec:.4f} sek"
     if sec < 3600: return f"{sec/60:.2f} min"
     if sec < 86400: return f"{sec/3600:.2f} soat"
     if sec < 31536000: return f"{sec/86400:.2f} kun"
     return f"{int(sec/31536000):,} yil"
 
+def generate_strong_suggestion(base_pwd):
+    # Katta harf, raqam va belgilar to'plami
+    special = "!@#$%^&*"
+    digits = string.digits
+    uppers = string.ascii_uppercase
+    
+    # Parolga murakkablik qo'shish
+    res = list(base_pwd)
+    res.insert(random.randint(0, len(res)), random.choice(uppers))
+    res.append(random.choice(special))
+    res.extend([random.choice(digits) for _ in range(2)])
+    
+    # Uzunlikni kamida 12 taga yetkazish
+    while len(res) < 12:
+        res.append(random.choice(string.ascii_lowercase))
+        
+    random.shuffle(res)
+    return "".join(res)
+
 # 4. ASOSIY INTERFEYS
 st.markdown("<h1 style='text-align:center; letter-spacing:15px; text-shadow:0 0 20px #0F0;'>L1GHTDREAM</h1>", unsafe_allow_html=True)
 
-pwd = st.text_input("ROOT_ACCESS_CODE >", type="password")
+pwd = st.text_input("ENTER ACCESS CODE >", type="password")
 
 if pwd:
-    # --- 1. ENTROPY LOGS ---
-    st.markdown("### [ 1. SECURITY METRICS ]")
+    # --- TOKENIZATION ---
+    st.markdown("### [ 1. NEURAL TOKENIZATION ]")
+    tokens_html = "".join([f"<div class='token-box'>{char}</div>" for char in pwd])
+    st.markdown(f"<div>{tokens_html}</div>", unsafe_allow_html=True)
     
+    # --- ANALYSIS ---
     has_upper = any(c.isupper() for c in pwd)
     has_digit = any(c.isdigit() for c in pwd)
     has_special = any(c in string.punctuation for c in pwd)
@@ -102,48 +117,29 @@ if pwd:
     if has_digit: pool += 10
     if has_special: pool += 32
     
-    current_sec = get_crack_time(pool, len(pwd))
+    current_sec = (pool ** len(pwd)) / 1e11 if len(pwd) > 0 else 0
     
-    st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {format_time(current_sec)}")
+    st.error(f"🛑 SECURITY ALERT: Buzish vaqti - {format_time(current_sec)}")
     
     col1, col2 = st.columns(2)
     with col1:
-        st.write("**JORIY HOLAT:**")
-        st.code(f"Simvol havzasi: {pool} ta\nParol uzunligi: {len(pwd)} ta")
-
+        st.write("**STATISTIKA:**")
+        st.code(f"Uzunlik: {len(pwd)}\nHavza: {pool} belgi")
+    
     with col2:
-        st.write("**STRATEGIK TAVSIYALAR:**")
-        # Tavsiyalar endi mantiqiy foizlar bilan ko'rsatiladi
-        if not has_upper:
-            new_time = get_crack_time(pool + 26, len(pwd))
-            boost = (new_time / current_sec) if current_sec > 0 else 0
-            st.info(f"⬆️ KATTA HARF qo'shish xavfsizlikni **{boost:.1f} barobar** oshiradi.")
-        
-        if not has_digit:
-            new_time = get_crack_time(pool + 10, len(pwd))
-            boost = (new_time / current_sec) if current_sec > 0 else 0
-            st.info(f"🔢 RAQAM qo'shish xavfsizlikni **{boost:.1f} barobar** oshiradi.")
-            
-        if len(pwd) < 12:
-            st.warning(f"📏 Uzunlikni 12 taga yetkazish tavsiya etiladi (Kritik daraja).")
+        st.write("**XAVFSIZLIKNI OSHIRISH:**")
+        if not has_upper: st.info("⬆️ Katta harf qo'shish tavsiya etiladi")
+        if not has_digit: st.info("🔢 Raqam qo'shish tavsiya etiladi")
+        if len(pwd) < 12: st.warning("📏 Uzunlikni 12 taga yetkazish kritik ahamiyatga ega")
 
-    # --- 2. SUGGESTIONS ---
-    st.markdown("### [ 2. SECURE PATTERN GENERATION ]")
+    # --- STRONG SUGGESTIONS ---
+    st.markdown("### [ 2. SECURE PATTERN SUGGESTIONS ]")
+    st.write("Sizning parolingiz asosida kiber-bardoshli variantlar:")
     cols = st.columns(3)
     for i in range(3):
-        # AES-256 darajasidagi takliflar
-        suggestion = random.choice(string.ascii_uppercase) + pwd + random.choice("!@#$") + str(random.randint(10, 99))
-        cols[i].code(suggestion)
+        strong_pwd = generate_strong_suggestion(pwd)
+        cols[i].code(strong_pwd)
 
 # 5. SIDEBAR
 with st.sidebar:
-    st.markdown(f"""
-    <div style='color:#0F0; font-family:monospace;'>
-        <h2>TERMINAL_INFO</h2>
-        <hr style='border-color:#0F0;'>
-        <b>OPERATOR:</b> Moxirxo'ja<br>
-        <b>FIELD:</b> Cybersecurity<br>
-        <b>NICK:</b> LIMITLESS<br>
-        <b>STATUS:</b> ENCRYPTED
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"<div style='color:#0F0; font-family:monospace;'><h2>TERMINAL_INFO</h2><hr><b>OPERATOR:</b> Moxirxo'ja<br><b>FIELD:</b> Cybersecurity<br><b>NICK:</b> LIMITLESS</div>", unsafe_allow_html=True)
