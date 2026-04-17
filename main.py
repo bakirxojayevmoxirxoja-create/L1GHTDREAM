@@ -5,7 +5,7 @@ import random
 # 1. SAHIFA SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM", layout="wide")
 
-# 2. MATRIX ENGINE & DYNAMIC CSS
+# 2. MATRIX FON VA CSS
 st.markdown("""
 <style>
     [data-testid="stAppViewContainer"], [data-testid="stHeader"], .stApp {
@@ -19,7 +19,7 @@ st.markdown("""
         background-color: black;
     }
     .main .block-container {
-        background-color: rgba(0, 0, 0, 0.9) !important;
+        background-color: rgba(0, 0, 0, 0.92) !important;
         border: 2px solid #00FF00;
         box-shadow: 0 0 25px #00FF00;
         border-radius: 15px;
@@ -47,8 +47,12 @@ st.markdown("""
 <script>
     const canvas = document.getElementById('matrix-canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
     const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ';
     const fontSize = 16;
     const columns = canvas.width / fontSize;
@@ -66,75 +70,82 @@ st.markdown("""
         }
     }
     setInterval(draw, 35);
-    window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
 </script>
 """, unsafe_allow_html=True)
 
-# 3. VAQTNI FORMATLASH FUNKSIYASI
-def format_time(seconds):
-    if seconds < 0.001: return f"{seconds:.6f} sek"
+# 3. VAQTNI ANIQ FORMATLASH FUNKSIYASI
+def format_security_time(seconds):
+    if seconds <= 0: return "0.0000 sek"
     if seconds < 1: return f"{seconds:.4f} sek"
     if seconds < 60: return f"{seconds:.2f} sek"
     if seconds < 3600: return f"{seconds/60:.2f} min"
     if seconds < 86400: return f"{seconds/3600:.2f} soat"
     if seconds < 31536000: return f"{seconds/86400:.2f} kun"
-    years = int(seconds / 31536000)
-    return f"{years:,} yil"
+    return f"{int(seconds/31536000):,} yil"
 
-# 4. ASOSIY QISM
+# 4. ASOSIY LOGIKA
 st.markdown("<div class='header-title'>L1GHTDREAM</div>", unsafe_allow_html=True)
 pwd = st.text_input("ENTER ACCESS CODE >", type="password")
 
 if pwd:
-    # --- TOKENIZATION ---
+    # TOKENIZATION
     st.markdown("<h3 style='color:#00FF00;'>[ 1. NEURAL TOKENIZATION ]</h3>", unsafe_allow_html=True)
     t_html = "".join([f"<div class='token-box'>{c}</div>" for c in pwd])
     st.markdown(f"<div>{t_html}</div>", unsafe_allow_html=True)
     
-    # --- HISOB-KITOB ---
-    pool = 0
+    # PARAMETRLAR
     has_lower = any(c.islower() for c in pwd)
     has_upper = any(c.isupper() for c in pwd)
     has_digit = any(c.isdigit() for c in pwd)
     has_special = any(c in string.punctuation for c in pwd)
 
-    if has_lower: pool += 26
-    if has_upper: pool += 26
-    if has_digit: pool += 10
-    if has_special: pool += 32
+    current_pool = 0
+    if has_lower: current_pool += 26
+    if has_upper: current_pool += 26
+    if has_digit: current_pool += 10
+    if has_special: current_pool += 32
     
-    current_sec = (pool ** len(pwd)) / 10**11 if len(pwd) > 0 else 0
+    # Agarda birorta belgi bo'lsa, lekin pool 0 bo'lsa (faqat probel bo'lishi mumkin)
+    if current_pool == 0 and len(pwd) > 0: current_pool = 1
+
+    # Joriy vaqt (100 mlrd urinish/sekund)
+    current_sec = (current_pool ** len(pwd)) / 10**11 if len(pwd) > 0 else 0
     
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"""
         <div style='border: 1px solid #00FF00; padding: 15px; background: rgba(0,255,0,0.05);'>
-            > Jami: {len(pwd)} ta | Katta: {sum(1 for c in pwd if c.isupper())} ta<br>
-            > Raqam: {sum(1 for c in pwd if c.isdigit())} ta | Belgi: {sum(1 for c in pwd if c in string.punctuation)} ta
+            > Jami belgilar: {len(pwd)} ta<br>
+            > Katta harflar: {sum(1 for c in pwd if c.isupper())} ta<br>
+            > Raqamlar: {sum(1 for c in pwd if c.isdigit())} ta
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
-        # --- BARCHA MASLAHATLARNI BIRDAIGA CHIQARISH ---
-        tips = []
-        if not has_upper:
-            diff = (((pool + 26) ** len(pwd)) / 10**11) - current_sec
-            tips.append(f"🟢 Katta harf qo'shilsa: +{format_time(diff)}")
-        if not has_digit:
-            diff = (((pool + 10) ** len(pwd)) / 10**11) - current_sec
-            tips.append(f"🔵 Raqam qo'shilsa: +{format_time(diff)}")
-        if not has_special:
-            diff = (((pool + 32) ** len(pwd)) / 10**11) - current_sec
-            tips.append(f"🟣 Belgi qo'shilsa: +{format_time(diff)}")
-        if len(pwd) < 12:
-            tips.append(f"🟡 Uzunlikni 12 taga yetkazish xavfsizlikni kalla qildiradi!")
+        # HAR BIR ELEMENT UCHUN ALOHIDA TAHLIL
+        st.markdown("<b style='color:#00FF00;'>Xavfsizlik maslahatlari:</b>", unsafe_allow_html=True)
         
-        for tip in tips:
-            st.markdown(f"<div style='margin-bottom:5px; color:#00FF00;'>{tip}</div>", unsafe_allow_html=True)
+        # 1. Katta harf bo'lmasa
+        if not has_upper:
+            diff = (((current_pool + 26) ** len(pwd)) / 10**11) - current_sec
+            st.markdown(f"<span style='color:#00FF00;'>🟢 Katta harf: +{format_security_time(diff)}</span>", unsafe_allow_html=True)
+        
+        # 2. Raqam bo'lmasa
+        if not has_digit:
+            diff = (((current_pool + 10) ** len(pwd)) / 10**11) - current_sec
+            st.markdown(f"<span style='color:#00FF00;'>🔵 Raqam: +{format_security_time(diff)}</span>", unsafe_allow_html=True)
 
-    st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {format_time(current_sec)}")
+        # 3. Maxsus belgi bo'lmasa
+        if not has_special:
+            diff = (((current_pool + 32) ** len(pwd)) / 10**11) - current_sec
+            st.markdown(f"<span style='color:#00FF00;'>🟣 Maxsus belgi: +{format_security_time(diff)}</span>", unsafe_allow_html=True)
 
-    # --- SMART SUGGESTIONS ---
+        if len(pwd) < 12:
+            st.markdown("<span style='color:#FFFF00;'>🟡 Tavsiya: Uzunlikni 12 taga yetkazish!</span>", unsafe_allow_html=True)
+
+    st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {format_security_time(current_sec)}")
+
+    # SMART SUGGESTIONS
     st.markdown("<h3 style='color:#00FF00;'>[ 2. SMART SUGGESTIONS ]</h3>", unsafe_allow_html=True)
     cols = st.columns(3)
     for i in range(3):
