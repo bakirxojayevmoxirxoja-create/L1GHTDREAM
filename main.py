@@ -5,7 +5,7 @@ import random
 # 1. TIZIM SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | SECURITY TERMINAL", layout="wide")
 
-# 2. MATRIX FON (IFRAME METHOD - BU QISM O'ZGARMADI)
+# 2. MATRIX FON (IFRAME METHOD - BU QISMAYTEGMA)
 st.markdown("""
 <style>
     .stApp, [data-testid="stHeader"], [data-testid="stAppViewContainer"] {
@@ -17,14 +17,13 @@ st.markdown("""
         z-index: -1; border: none;
     }
     .main .block-container {
-        background-color: rgba(0, 0, 0, 0.93) !important;
+        background-color: rgba(0, 0, 0, 0.94) !important;
         border: 2px solid #00FF00;
         box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
         border-radius: 12px;
         padding: 40px; margin-top: 30px;
         color: #00FF00; font-family: 'Courier New', monospace;
     }
-    /* Tokenizatsiya uchun maxsus boxlar */
     .token-box {
         display: inline-block;
         border: 1px solid #00FF00;
@@ -32,8 +31,9 @@ st.markdown("""
         margin: 5px;
         background: rgba(0, 255, 0, 0.1);
         font-weight: bold;
-        box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
     }
+    .stat-label { color: #00FF00; font-weight: bold; }
+    .stat-value { color: #FFFFFF; background: #004400; padding: 2px 8px; border-radius: 4px; }
 </style>
 
 <iframe class="matrix-bg" srcdoc="
@@ -77,69 +77,67 @@ def format_time(sec):
     if sec < 31536000: return f"{sec/86400:.2f} kun"
     return f"{int(sec/31536000):,} yil"
 
-def generate_strong_suggestion(base_pwd):
-    # Katta harf, raqam va belgilar to'plami
-    special = "!@#$%^&*"
-    digits = string.digits
-    uppers = string.ascii_uppercase
-    
-    # Parolga murakkablik qo'shish
+def generate_complex_suggestion(base_pwd):
+    # Professional murakkablashtirish
+    special_chars = "!@#$%^&*"
     res = list(base_pwd)
-    res.insert(random.randint(0, len(res)), random.choice(uppers))
-    res.append(random.choice(special))
-    res.extend([random.choice(digits) for _ in range(2)])
-    
-    # Uzunlikni kamida 12 taga yetkazish
+    # Kamida 1 ta katta harf, 1 ta raqam va 1 ta belgi qo'shishni kafolatlash
+    res.append(random.choice(string.ascii_uppercase))
+    res.append(random.choice(string.digits))
+    res.append(random.choice(special_chars))
+    # Uzunlikni kamida 12 ga yetkazish
     while len(res) < 12:
         res.append(random.choice(string.ascii_lowercase))
-        
     random.shuffle(res)
     return "".join(res)
 
 # 4. ASOSIY INTERFEYS
 st.markdown("<h1 style='text-align:center; letter-spacing:15px; text-shadow:0 0 20px #0F0;'>L1GHTDREAM</h1>", unsafe_allow_html=True)
 
-pwd = st.text_input("ENTER ACCESS CODE >", type="password")
+pwd = st.text_input("ENTER SYSTEM ACCESS KEY >", type="password")
 
 if pwd:
-    # --- TOKENIZATION ---
+    # --- 1. TOKENIZATION ---
     st.markdown("### [ 1. NEURAL TOKENIZATION ]")
     tokens_html = "".join([f"<div class='token-box'>{char}</div>" for char in pwd])
     st.markdown(f"<div>{tokens_html}</div>", unsafe_allow_html=True)
     
-    # --- ANALYSIS ---
-    has_upper = any(c.isupper() for c in pwd)
-    has_digit = any(c.isdigit() for c in pwd)
-    has_special = any(c in string.punctuation for c in pwd)
+    # --- 2. STATISTIKA HISOBLASH ---
+    u_count = sum(1 for c in pwd if c.isupper())
+    l_count = sum(1 for c in pwd if c.islower())
+    d_count = sum(1 for c in pwd if c.isdigit())
+    s_count = sum(1 for c in pwd if c in string.punctuation)
     
-    pool = 26
-    if has_upper: pool += 26
-    if has_digit: pool += 10
-    if has_special: pool += 32
+    pool = 0
+    if l_count > 0: pool += 26
+    if u_count > 0: pool += 26
+    if d_count > 0: pool += 10
+    if s_count > 0: pool += 32
     
     current_sec = (pool ** len(pwd)) / 1e11 if len(pwd) > 0 else 0
+
+    # Vizual Statistika bloki
+    st.markdown(f"""
+    <div style="border: 1px solid #00FF00; padding: 20px; border-radius: 8px; background: rgba(0,20,0,0.5);">
+        <span class="stat-label">KATTA HARF:</span> <span class="stat-value">{u_count} ta</span> &nbsp;&nbsp;
+        <span class="stat-label">KICHIK HARF:</span> <span class="stat-value">{l_count} ta</span> &nbsp;&nbsp;
+        <span class="stat-label">SON:</span> <span class="stat-value">{d_count} ta</span> &nbsp;&nbsp;
+        <span class="stat-label">BELGI:</span> <span class="stat-value">{s_count} ta</span>
+        <br><br>
+        <span class="stat-label">UMUMIY UZUNLIK:</span> <span class="stat-value">{len(pwd)} ta</span> &nbsp;&nbsp;
+        <span class="stat-label">HAVZA (ENTROPY):</span> <span class="stat-value">{pool} belgi</span>
+    </div>
+    """, unsafe_allow_html=True)
     
     st.error(f"🛑 SECURITY ALERT: Buzish vaqti - {format_time(current_sec)}")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.write("**STATISTIKA:**")
-        st.code(f"Uzunlik: {len(pwd)}\nHavza: {pool} belgi")
-    
-    with col2:
-        st.write("**XAVFSIZLIKNI OSHIRISH:**")
-        if not has_upper: st.info("⬆️ Katta harf qo'shish tavsiya etiladi")
-        if not has_digit: st.info("🔢 Raqam qo'shish tavsiya etiladi")
-        if len(pwd) < 12: st.warning("📏 Uzunlikni 12 taga yetkazish kritik ahamiyatga ega")
 
-    # --- STRONG SUGGESTIONS ---
+    # --- 3. SUGGESTIONS ---
     st.markdown("### [ 2. SECURE PATTERN SUGGESTIONS ]")
-    st.write("Sizning parolingiz asosida kiber-bardoshli variantlar:")
     cols = st.columns(3)
     for i in range(3):
-        strong_pwd = generate_strong_suggestion(pwd)
-        cols[i].code(strong_pwd)
+        strong_option = generate_complex_suggestion(pwd)
+        cols[i].code(strong_option)
 
 # 5. SIDEBAR
 with st.sidebar:
-    st.markdown(f"<div style='color:#0F0; font-family:monospace;'><h2>TERMINAL_INFO</h2><hr><b>OPERATOR:</b> Moxirxo'ja<br><b>FIELD:</b> Cybersecurity<br><b>NICK:</b> LIMITLESS</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='color:#0F0; font-family:monospace;'><h2>TERMINAL_INFO</h2><hr><b>OPERATOR:</b> {st.session_state.get('user_name', 'Moxirxo\'ja')}<br><b>FIELD:</b> Cybersecurity<br><b>NICK:</b> LIMITLESS</div>", unsafe_allow_html=True)
