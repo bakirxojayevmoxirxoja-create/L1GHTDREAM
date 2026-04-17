@@ -5,9 +5,9 @@ import random
 import string
 
 # 1. SAHIFA SOZLAMALARI
-st.set_page_config(page_title="L1GHTDREAM v3.1 | Bakirxo'jayev", layout="wide")
+st.set_page_config(page_title="L1GHTDREAM v3.2 | Bakirxo'jayev", layout="wide")
 
-# 2. DIZAYN VA STIL (Kattalashtirilgan yozuvlar bilan)
+# 2. DIZAYN (Hacker Terminal)
 def set_bg(file):
     try:
         with open(file, "rb") as f:
@@ -27,35 +27,23 @@ def set_bg(file):
             border-radius: 12px;
             padding: 45px;
         }}
-        .hacker-text {{
-            color: #00FF00 !important;
-            font-family: 'Courier New', monospace;
+        .hacker-text {{ color: #00FF00 !important; font-family: 'Courier New', monospace; }}
+        .token-box {{
+            border: 1px solid #00FF00;
+            padding: 10px;
+            margin: 5px;
+            display: inline-block;
+            background: rgba(0, 255, 0, 0.1);
+            color: #00FF00;
         }}
-        /* TAVSIYA VA TAKLIFLARNI KATTALASHTIRISH */
+        .error-msg {{ color: #FF3333 !important; font-weight: bold; margin-bottom: 5px; }}
         .big-advice {{
-            font-size: 22px !important;
-            font-weight: bold;
+            font-size: 20px !important;
             color: #00FF00;
             border: 2px solid #00FF00;
-            padding: 15px;
-            background: rgba(0, 50, 0, 0.7);
-            border-radius: 10px;
-            margin: 10px 0;
-        }}
-        .brute-box {{
-            background-color: rgba(50, 0, 0, 0.7);
-            border: 2px solid #FF3333;
-            color: #FF3333;
-            padding: 20px;
-            font-size: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-        }}
-        input {{
-            background-color: #000 !important;
-            color: #00FF00 !important;
-            border: 1px solid #00FF00 !important;
-            font-size: 18px !important;
+            padding: 12px;
+            background: rgba(0, 50, 0, 0.6);
+            margin: 8px 0;
         }}
         </style>
         """, unsafe_allow_html=True)
@@ -63,70 +51,66 @@ def set_bg(file):
 
 set_bg('bg.jpg')
 
-# 3. BRUTE-FORCE VAQTINI HISOBLASH (REALISTIK)
+# 3. BRUTE-FORCE VAQTINI HISOBLASH
 def calculate_brute_time(pwd):
     length = len(pwd)
-    charset_size = 0
-    if any(c.islower() for c in pwd): charset_size += 26
-    if any(c.isupper() for c in pwd): charset_size += 26
-    if any(c.isdigit() for c in pwd): charset_size += 10
-    if any(c in string.punctuation for c in pwd): charset_size += 32
+    charset = 0
+    if any(c.islower() for c in pwd): charset += 26
+    if any(c.isupper() for c in pwd): charset += 26
+    if any(c.isdigit() for c in pwd): charset += 10
+    if any(c in string.punctuation for c in pwd): charset += 32
+    if charset == 0 or length == 0: return "0 sekund"
     
-    if charset_size == 0: return "0 sekund"
+    combinations = charset ** length
+    seconds = combinations / 100_000_000_000 # 100 mlrd urinish/sek
     
-    # Umumiy kombinatsiyalar soni
-    combinations = charset_size ** length
-    # Taxminiy tezlik: sekundiga 100 milliard urinish (kuchli server)
-    seconds = combinations / 100_000_000_000
-    
-    if seconds < 1: return "0.01 sekund (Instant!)"
-    if seconds < 60: return f"{int(seconds)} sekund"
+    if seconds < 1: return "ZUMRAD (Instant!)"
     if seconds < 3600: return f"{int(seconds/60)} daqiqa"
     if seconds < 86400: return f"{int(seconds/3600)} soat"
-    if seconds < 31536000: return f"{int(seconds/86400)} kun"
     return f"{int(seconds/31536000)} yil"
 
-# 4. ASOSIY LOGIKA
-st.markdown("<h1 class='hacker-text'>$ L1GHTDREAM_v3.1</h1>", unsafe_allow_html=True)
+# 4. ASOSIY QISM
+st.markdown("<h1 class='hacker-text'>$ L1GHTDREAM_v3.2</h1>", unsafe_allow_html=True)
 
 pwd = st.text_input("PASSWORD_INPUT >", type="password")
 
 if pwd:
-    # Neyron tahlil kriteriyalari
+    # A) TOKENIZATSIYA (AMALIY)
+    tokens = list(pwd)
+    st.markdown("<h3 class='hacker-text'>[ 1. NEURAL TOKENIZATION ]</h3>", unsafe_allow_html=True)
+    token_html = "".join([f"<div class='token-box'>{t}</div>" for t in tokens])
+    st.markdown(token_html, unsafe_allow_html=True)
+    st.write(f"Jami belgilar soni: **{len(pwd)} ta**")
+
+    # B) TAHLIL VA XATOLAR
     has_upper = any(c.isupper() for c in pwd)
     has_digit = any(c.isdigit() for c in pwd)
     has_spec = any(c in string.punctuation for c in pwd)
     length = len(pwd)
     
-    is_strong = length >= 12 and has_upper and has_digit and has_spec #
-
     st.write("---")
     
-    if is_strong:
-        st.success("✅ ACCESS GRANTED: Tizim xavfsiz.")
+    if length >= 12 and has_upper and has_digit and has_spec:
+        st.success("✅ ACCESS GRANTED: Neyron tarmog'i parolni tasdiqladi.")
     else:
-        st.error("❌ ACCESS DENIED: Parol juda zaif!")
-        
-        # BRUTE-FORCE (Realistik vaqt)
+        st.markdown("<h3 class='hacker-text'>[ 2. ANALYSIS ERRORS ]</h3>", unsafe_allow_html=True)
+        if length < 12: st.markdown(f"<p class='error-msg'>⚠️ XATO: Uzunlik yetarli emas (Hozir: {length}, Kamida: 12)</p>", unsafe_allow_html=True)
+        if not has_upper: st.markdown("<p class='error-msg'>⚠️ XATO: Katta harf (A-Z) ishlatilmagan!</p>", unsafe_allow_html=True)
+        if not has_digit: st.markdown("<p class='error-msg'>⚠️ XATO: Raqam (0-9) topilmadi!</p>", unsafe_allow_html=True)
+        if not has_spec: st.markdown("<p class='error-msg'>⚠️ XATO: Maxsus belgi (!, @, #) yo'q!</p>", unsafe_allow_html=True)
+
+        # C) BRUTE-FORCE VA TAKLIFLAR
         brute_time = calculate_brute_time(pwd)
-        st.markdown(f"""
-        <div class='brute-box'>
-            [ ALERT ] Hujum simulyatsiyasi:<br>
-            Ushbu parolni buzish uchun taxminan <b>{brute_time}</b> vaqt ketadi.
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # KATTALASHTIRILGAN TAKLIFLAR
-        st.markdown("<h3 class='hacker-text' style='margin-top:25px;'>[ MUKAMMAL TAKLIFLAR ]</h3>", unsafe_allow_html=True)
-        
-        # 3 ta chiroyli va kuchli variant
+        st.error(f"Hujum simulyatsiyasi: Buzish uchun **{brute_time}** ketadi.")
+
+        st.markdown("<h3 class='hacker-text' style='margin-top:20px;'>[ 3. SUGGESTIONS ]</h3>", unsafe_allow_html=True)
         for _ in range(3):
-            sug = "".join(random.choice(string.ascii_letters + string.digits + "!@#$%") for _ in range(14))
+            sug = "".join(random.choice(string.ascii_letters + string.digits + "!@#$") for _ in range(14))
             st.markdown(f"<div class='big-advice'> > {sug}</div>", unsafe_allow_html=True)
 
 # 5. SIDEBAR
 with st.sidebar:
     st.markdown("<h2 class='hacker-text'>SYSTEM_INFO</h2>", unsafe_allow_html=True)
     st.write("---")
-    st.markdown("<p class='hacker-text'><b>DEV:</b> Bakirxo'jayev M.</p>", unsafe_allow_html=True)
-    st.markdown("<p class='hacker-text'><b>VER:</b> 3.1 (Stable)</p>", unsafe_allow_html=True)
+    st.markdown("<p class='hacker-text'><b>DEV:</b> Bakirxo'jayev M.</p>")
+    st.markdown("<p class='hacker-text'><b>STATUS:</b> ENCRYPTED</p>")
