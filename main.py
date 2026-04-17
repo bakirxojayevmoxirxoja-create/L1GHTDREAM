@@ -3,7 +3,6 @@ import numpy as np
 import base64
 import random
 import string
-import time
 
 # 1. SAHIFA SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | Bakirxo'jayev", layout="wide")
@@ -36,16 +35,22 @@ def set_design():
         padding: 15px; margin: 10px 0;
         font-family: 'Courier New', monospace;
     }}
-    .hacker-card {{
-        border: 1px solid #00FF00; padding: 15px; border-radius: 8px;
-        background: rgba(0, 255, 0, 0.05); text-align: center;
+    /* SIDEBAR STILI */
+    [data-testid="stSidebar"] {{
+        background-color: #050505 !important;
+        border-right: 1px solid #00FF00;
+    }}
+    .sidebar-text {{
+        color: #00FF00 !important;
+        font-family: 'Courier New', monospace;
+        font-size: 16px;
     }}
     </style>
     """, unsafe_allow_html=True)
 
 set_design()
 
-# 3. VAQTNI HISOBLASH (Realistik)
+# 3. VAQTNI HISOBLASH FUNKSIYASI
 def get_brute_time(pwd):
     length = len(pwd)
     if length == 0: return "0 sekund"
@@ -67,13 +72,11 @@ st.markdown("<div class='centered-title'>L1GHTDREAM</div>", unsafe_allow_html=Tr
 pwd = st.text_input("PASSWORD_INPUT >", type="password")
 
 if pwd:
-    # A) TOKENIZATSIYA
-    st.markdown("<h3 style='color:#00FF00;'>[ 1. NEURAL TOKENIZATION ]</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 class='hacker-text'>[ 1. NEURAL TOKENIZATION ]</h3>", unsafe_allow_html=True)
     tokens = list(pwd)
-    token_html = "".join([f"<div class='token-box'>{t}</div>" for t in tokens])
+    token_html = "".join([f<div class='token-box'>{t}</div> for t in tokens])
     st.markdown(token_html, unsafe_allow_html=True)
     
-    # B) DETALLASHGAN STATISTIKA
     u_count = sum(1 for c in pwd if c.isupper())
     l_count = sum(1 for c in pwd if c.islower())
     d_count = sum(1 for c in pwd if c.isdigit())
@@ -89,36 +92,25 @@ if pwd:
     </div>
     """, unsafe_allow_html=True)
 
-    # C) TAHLIL
     is_ok = len(pwd) >= 12 and u_count > 0 and d_count > 0 and s_count > 0
-    
     st.write("---")
     
     if is_ok:
-        st.balloons()
         st.success("✅ STATUS: ENCRYPTED AND SECURE")
     else:
-        # Brute Force Alert
         brute = get_brute_time(pwd)
         st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {brute}")
-        
-        # Xatolar
-        st.markdown("<h3 style='color:#00FF00;'>[ ANALYSIS ERRORS ]</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 class='hacker-text'>[ ANALYSIS ERRORS ]</h3>", unsafe_allow_html=True)
         if len(pwd) < 12: st.warning(f"• Uzunlik yetarli emas (Kamida 12)")
         if u_count == 0: st.warning("• Katta harf (A-Z) ishlatilmagan")
         if d_count == 0: st.warning("• Raqam (0-9) topilmadi")
         if s_count == 0: st.warning("• Maxsus belgi (!, @, #) yo'q")
 
-        # Takliflar
-        st.markdown("<h3 style='color:#00FF00; margin-top:20px;'>[ SUGGESTIONS ]</h3>", unsafe_allow_html=True)
-        cols = st.columns(3)
-        for i in range(3):
-            sug = "".join(random.choice(string.ascii_letters + string.digits + "@#$") for _ in range(14))
-            cols[i].markdown(f"<div class='hacker-card'><b>{sug}</b></div>", unsafe_allow_html=True)
-
-# 5. SIDEBAR
+# 5. SIDEBAR (YANGILANGAN)
 with st.sidebar:
-    st.markdown("<h2 style='color:#00FF00;'>TERMINAL_INFO</h2>", unsafe_allow_html=True)
-    st.write(f"Dasturchi: Raxmatov Badriddin") #
-    st.write(f"Yosh: 19") #
-    st.write("Yo'nalish: Kiberxavfsizlik") #
+    st.markdown("<h2 style='color:#00FF00; font-family:monospace;'>TERMINAL_INFO</h2>", unsafe_allow_html=True)
+    st.write("---")
+    st.markdown(f"<p class='sidebar-text'><b>DASTURCHI:</b><br>Bakirxo'jayev Moxirxo'ja</p>", unsafe_allow_html=True)
+    st.markdown(f"<p class='sidebar-text'><b>NICKNAME:</b><br>LIMITLESS</p>", unsafe_allow_html=True)
+    st.write("---")
+    st.markdown("<p style='color:#008800; font-size:12px;'>L1GHTDREAM: Neyron tahlil tizimi faol.</p>", unsafe_allow_html=True)
