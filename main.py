@@ -7,7 +7,7 @@ import string
 # 1. SAHIFA SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | LIMITLESS", layout="wide")
 
-# 2. KREATIV DIZAYN
+# 2. DIZAYN
 def set_design():
     st.markdown("""
     <style>
@@ -35,29 +35,34 @@ def set_design():
         padding: 15px; margin: 10px 0;
         font-family: 'Courier New', monospace;
     }
-    .brute-box {
-        background-color: rgba(50, 0, 0, 0.8);
-        border: 2px solid #FF3333;
-        color: #FF3333;
-        padding: 20px;
-        font-size: 18px;
-        border-radius: 10px;
+    .suggestion-card {
+        border: 1px solid #00FF00; padding: 15px; border-radius: 8px;
+        background: rgba(0, 255, 0, 0.08); text-align: center;
+        margin: 5px; font-family: 'Courier New', monospace;
+        color: #00FF00; font-weight: bold;
     }
-    [data-testid="stSidebar"] {
-        background-color: #050505 !important;
-        border-right: 1px solid #00FF00;
-    }
-    .sidebar-text {
-        color: #00FF00 !important;
-        font-family: 'Courier New', monospace;
-        font-size: 16px;
-    }
+    [data-testid="stSidebar"] { background-color: #050505 !important; border-right: 1px solid #00FF00; }
+    .sidebar-text { color: #00FF00 !important; font-family: 'Courier New', monospace; }
     </style>
     """, unsafe_allow_html=True)
 
 set_design()
 
-# 3. BRUTE-FORCE VAQTNI HISOBLASH
+# 3. AQLLI TAVSIYA GENERATORI (Sizning parolingiz asosida)
+def generate_smart_suggestions(base_pwd):
+    suggestions = []
+    # Parol elementlarini tahlil qilish
+    specs = "!@#$%^&*"
+    for _ in range(3):
+        # Asl parolingizni olib, unga tasodifiy belgilar va raqamlar qo'shamiz
+        suffix = "".join(random.choice(string.digits + specs) for _ in range(4))
+        prefix = random.choice(string.ascii_uppercase)
+        # O'xshashlikni saqlash
+        new_sug = f"{prefix}{base_pwd}{suffix}"
+        suggestions.append(new_sug)
+    return suggestions
+
+# 4. VAQT HISOBLASH
 def get_brute_time(pwd):
     length = len(pwd)
     if length == 0: return "0 sekund"
@@ -66,17 +71,14 @@ def get_brute_time(pwd):
     if any(c.isupper() for c in pwd): charset += 26
     if any(c.isdigit() for c in pwd): charset += 10
     if any(c in string.punctuation for c in pwd): charset += 32
-    
     combinations = charset ** length
-    sec = combinations / 100_000_000_000 # 100 mlrd urinish/sek
-    
+    sec = combinations / 100_000_000_000
     if sec < 0.01: return "0.0001 sekund"
     if sec < 3600: return f"{int(sec/60)} daqiqa"
     if sec < 86400: return f"{int(sec/3600)} soat"
-    if sec < 31536000: return f"{int(sec/86400)} kun"
     return f"{int(sec/31536000)} yil"
 
-# 4. ASOSIY QISM
+# 5. ASOSIY QISM
 st.markdown("<div class='centered-title'>L1GHTDREAM</div>", unsafe_allow_html=True)
 
 pwd = st.text_input("PASSWORD_INPUT >", type="password")
@@ -85,7 +87,6 @@ if pwd:
     # Tokenlar
     st.markdown("<h3 style='color:#00FF00;'>[ 1. NEURAL TOKENIZATION ]</h3>", unsafe_allow_html=True)
     tokens = list(pwd)
-    # Tahlil - Xato shu yerda edi (f"..." qo'shildi)
     token_html = "".join([f"<div class='token-box'>{t}</div>" for t in tokens])
     st.markdown(token_html, unsafe_allow_html=True)
     
@@ -111,20 +112,23 @@ if pwd:
     if is_ok:
         st.success("✅ STATUS: ENCRYPTED AND SECURE")
     else:
+        # Alert va Brute Force
         brute = get_brute_time(pwd)
-        st.markdown(f"<div class='brute-box'>[ ALERT ] HUJUM SIMULYATSIYASI: <b>{brute}</b></div>", unsafe_allow_html=True)
+        st.error(f"⚠️ SECURITY ALERT: Buzish vaqti - {brute}")
         
-        st.markdown("<h3 style='color:#00FF00;'>[ ANALYSIS ERRORS ]</h3>", unsafe_allow_html=True)
-        if len(pwd) < 12: st.error(f"⚠️ Kamida 12 ta belgi (Hozir: {len(pwd)})")
-        if u_count == 0: st.error("⚠️ Katta harf (A-Z) ishlatilmagan")
-        if d_count == 0: st.error("⚠️ Raqam (0-9) topilmadi")
-        if s_count == 0: st.error("⚠️ Maxsus belgi topilmadi")
+        # AQLLI TAVSIYALAR
+        st.markdown("<h3 style='color:#00FF00;'>[ 2. SMART SUGGESTIONS ]</h3>", unsafe_allow_html=True)
+        st.write("Sizning parolingiz asosida kuchaytirilgan variantlar:")
+        
+        smart_sugs = generate_smart_suggestions(pwd)
+        cols = st.columns(3)
+        for i, sug in enumerate(smart_sugs):
+            cols[i].markdown(f"<div class='suggestion-card'>{sug}</div>", unsafe_allow_html=True)
 
-# 5. SIDEBAR
+# 6. SIDEBAR
 with st.sidebar:
     st.markdown("<h2 style='color:#00FF00;'>TERMINAL_INFO</h2>", unsafe_allow_html=True)
     st.write("---")
     st.markdown("<p class='sidebar-text'><b>DASTURCHI:</b><br>Bakirxo'jayev Moxirxo'ja</p>", unsafe_allow_html=True)
     st.markdown("<p class='sidebar-text'><b>NICKNAME:</b><br>LIMITLESS</p>", unsafe_allow_html=True)
     st.write("---")
-    st.markdown("<p style='color:#008800; font-size:12px;'>Tizim tahlilga tayyor.</p>", unsafe_allow_html=True)
