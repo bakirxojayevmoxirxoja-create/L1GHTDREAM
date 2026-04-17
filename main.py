@@ -5,153 +5,129 @@ import random
 # 1. TIZIM SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM | TERMINAL", layout="wide")
 
-# 2. MATRIX FONNI MAJBURIY QATLAM QILIB O'RNATISH
-# z-index: -1 orqali fon eng orqaga suriladi
+# 2. MATRIX FONNI MUSTAQIL QATLAM SIFATIDA ISHLATISH (IFRAME METHOD)
+# Bu usul Matrixni Streamlit qatlamlaridan to'liq ajratadi va ishlashini kafolatlaydi
 st.markdown("""
 <style>
-    /* Barcha Streamlit fonlarini shaffof qilish */
-    .stApp, [data-testid="stHeader"], [data-testid="stAppViewContainer"] {
-        background: transparent !important;
-    }
+    .stApp { background: black !important; }
+    [data-testid="stAppViewContainer"] { background: transparent !important; }
+    [data-testid="stHeader"] { display: none; }
     
-    /* Matrix Canvas - Bu eng pastki qatlam */
-    #matrix-canvas {
+    .matrix-bg {
         position: fixed;
         top: 0; left: 0;
-        width: 100vw; height: 100vh;
+        width: 100%; height: 100%;
         z-index: -1;
-        background-color: black;
+        border: none;
     }
-
-    /* Asosiy blok - Matrix ustida turadigan shaffof qatlam */
+    
     .main .block-container {
-        position: relative;
-        z-index: 10;
-        background-color: rgba(0, 0, 0, 0.88) !important;
+        background-color: rgba(0, 0, 0, 0.9) !important;
         border: 2px solid #00FF00;
-        box-shadow: 0 0 35px #00FF00;
-        border-radius: 10px;
-        padding: 40px;
+        box-shadow: 0 0 40px rgba(0, 255, 0, 0.4);
+        border-radius: 15px;
+        padding: 50px;
         margin-top: 20px;
         color: #00FF00;
         font-family: 'Courier New', monospace;
     }
-
-    /* Terminal sarlavhasi */
-    .terminal-header {
-        text-align: center; 
-        font-size: 55px; 
-        font-weight: bold; 
-        text-shadow: 0 0 20px #00FF00;
-        letter-spacing: 15px;
-        margin-bottom: 30px;
-    }
 </style>
 
-<canvas id="matrix-canvas"></canvas>
-<script>
-    const canvas = document.getElementById('matrix-canvas');
-    const ctx = canvas.getContext('2d');
-    
-    function init() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    init();
-    window.addEventListener('resize', init);
-
-    const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ';
-    const fontSize = 16;
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops = Array(columns).fill(1);
-
-    function draw() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#0F0';
-        ctx.font = fontSize + 'px monospace';
-
-        for (let i = 0; i < drops.length; i++) {
-            const text = chars[Math.floor(Math.random() * chars.length)];
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
-        }
-    }
-    setInterval(draw, 35);
-</script>
+<iframe class="matrix-bg" srcdoc="
+    <html>
+    <body style='margin:0; overflow:hidden; background:black;'>
+        <canvas id='m'></canvas>
+        <script>
+            const c = document.getElementById('m');
+            const ctx = c.getContext('2d');
+            c.width = window.innerWidth;
+            c.height = window.innerHeight;
+            const letters = '01ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ';
+            const fontSize = 16;
+            const columns = c.width / fontSize;
+            const drops = Array(Math.floor(columns)).fill(1);
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, c.width, c.height);
+                ctx.fillStyle = '#0F0';
+                ctx.font = fontSize + 'px monospace';
+                for (let i = 0; i < drops.length; i++) {
+                    const text = letters[Math.floor(Math.random() * letters.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > c.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                }
+            }
+            setInterval(draw, 33);
+        </script>
+    </body>
+    </html>
+"></iframe>
 """, unsafe_allow_html=True)
 
-# 3. KIBERXAVFSIZLIK TAHLILI FUNKSIYALARI
-def calc_entropy_time(pool, length):
-    # 100 mlrd urinish/sek (Standard Supercomputer Attack)
-    seconds = (pool ** length) / 1e11 if length > 0 else 0
-    return seconds
-
-def format_security_time(sec):
-    if sec <= 0: return "DARHOL"
-    if sec < 1: return f"{sec:.4f} sek"
+# 3. KIBERXAVFSIZLIK ANALITIKASI (ANIQ TAVSIYALAR BILAN)
+def get_time_readable(sec):
+    if sec < 1: return f"{sec:.6f} sek"
     if sec < 3600: return f"{sec/60:.2f} min"
     if sec < 86400: return f"{sec/3600:.2f} soat"
     if sec < 31536000: return f"{sec/86400:.2f} kun"
     return f"{int(sec/31536000):,} yil"
 
-# 4. INTERFEYS
-st.markdown("<div class='terminal-header'>L1GHTDREAM</div>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#00FF00; text-shadow:0 0 20px #0F0; letter-spacing:15px;'>L1GHTDREAM</h1>", unsafe_allow_html=True)
 
-pwd = st.text_input("ROOT_ACCESS@PWD >", type="password")
+pwd = st.text_input("ROOT_ACCESS_KEY >", type="password")
 
 if pwd:
-    st.markdown("### [ 1. ENTROPY ANALYSIS ]")
+    # ENTROPY ANALYSIS
+    st.markdown("### [ 1. ENTROPY LOGS ]")
     
-    # Belgilar turlarini aniqlash
+    pool = 26
     has_upper = any(c.isupper() for c in pwd)
     has_digit = any(c.isdigit() for c in pwd)
     has_special = any(c in string.punctuation for c in pwd)
-
-    current_pool = 26 # Kichik harflar default
-    if has_upper: current_pool += 26
-    if has_digit: current_pool += 10
-    if has_special: current_pool += 32
-
-    current_sec = calc_entropy_time(current_pool, len(pwd))
     
-    col1, col2 = st.columns([1, 1.5])
+    if has_upper: pool += 26
+    if has_digit: pool += 10
+    if has_special: pool += 32
     
+    # 100 mlrd/sek tezlik
+    current_sec = (pool ** len(pwd)) / 10**11 if len(pwd) > 0 else 0
+    
+    st.error(f"BUZISH VAQTI: {get_time_readable(current_sec)}")
+    
+    col1, col2 = st.columns(2)
     with col1:
-        st.write(f"**Joriy Holat:**")
-        st.code(f"Uzunlik: {len(pwd)}\nHavza: {current_pool} belgi")
-        st.error(f"BUZISH VAQTI: {format_security_time(current_sec)}")
-
+        st.info(f"**PARAMETRLAR:**\n- Uzunlik: {len(pwd)}\n- Havza: {pool} ta belgi")
+    
     with col2:
-        st.markdown("**PROXIMITY RECOMMENDATIONS:**")
-        
-        # Matematik jihatdan eng katta o'sish beradigan tavsiyalar
+        st.markdown("**STRATEGIK TAVSIYALAR:**")
+        # Tavsiyalarni faqat mantiqiy darajada katta o'sish bo'lsagina ko'rsatamiz
         if not has_upper:
-            new_sec = calc_entropy_time(current_pool + 26, len(pwd))
-            st.info(f"⬆️ KATTA HARF qo'shish xavfsizlikni **{format_security_time(new_sec - current_sec)}** ga oshiradi.")
-            
+            new_sec = ((pool + 26) ** len(pwd)) / 10**11
+            st.warning(f"💡 Katta harf: +{get_time_readable(new_sec - current_sec)} qo'shadi")
         if not has_digit:
-            new_sec = calc_entropy_time(current_pool + 10, len(pwd))
-            st.info(f"🔢 RAQAM qo'shish xavfsizlikni **{format_security_time(new_sec - current_sec)}** ga oshiradi.")
-
+            new_sec = ((pool + 10) ** len(pwd)) / 10**11
+            st.warning(f"💡 Raqam: +{get_time_readable(new_sec - current_sec)} qo'shadi")
         if len(pwd) < 12:
-            new_sec = calc_entropy_time(current_pool, 12)
-            st.warning(f"📏 UZUNLIKNI 12 taga yetkazish xavfsizlikni **{format_security_time(new_sec - current_sec)}** ga oshiradi.")
+            new_sec = (pool ** 12) / 10**11
+            st.success(f"📏 12 ta belgi: {get_time_readable(new_sec)} ga yetkazadi!")
 
-    # SMART SUGGESTIONS (AES-256 Pattern)
-    st.markdown("### [ 2. SECURE PATTERN SUGGESTIONS ]")
+    # SMART SUGGESTIONS
+    st.markdown("### [ 2. GENERATED SECURE PATTERNS ]")
     cols = st.columns(3)
     for i in range(3):
-        suggested = random.choice(string.ascii_uppercase) + pwd + random.choice("!@#") + str(random.randint(10, 99))
-        cols[i].code(suggested)
+        res = random.choice(string.ascii_uppercase) + pwd + random.choice("!#@") + str(random.randint(10,99))
+        cols[i].code(res)
 
 # 5. SIDEBAR
 with st.sidebar:
-    st.markdown("## TERMINAL_STATUS")
-    st.write("---")
     st.markdown(f"""
-    **SYSTEM_OPERATOR:** Moxirxo'ja  
-    **ACCESS_LEVEL:** LIMITLESS  
-    **ENCRYPTION:** ACTIVE
-    """)
+    <div style='color:#0F0; font-family:monospace;'>
+        <h2>TERMINAL_STATUS</h2>
+        <hr>
+        <b>OPERATOR:</b> Moxirxo'ja<br>
+        <b>AGE:</b> 19<br>
+        <b>FIELD:</b> Cybersecurity<br>
+        <b>NICK:</b> LIMITLESS
+    </div>
+    """, unsafe_allow_html=True)
