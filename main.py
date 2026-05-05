@@ -1,11 +1,12 @@
 import streamlit as st
 import string
 import numpy as np
+import plotly.graph_objects as go
 
 # 1. TIZIM SOZLAMALARI
 st.set_page_config(page_title="L1GHTDREAM AI PRO", layout="wide")
 
-# 2. MATRIX FON VA STILLAR
+# 2. MATRIX FON VA STILLAR (Saqlab qolindi)
 st.markdown("""
 <style>
     .stApp { background: transparent !important; }
@@ -24,86 +25,84 @@ st.markdown("""
 def sigmoid(x): return 1 / (1 + np.exp(-x))
 def relu(x): return np.maximum(0, x)
 
-def format_time(sec):
-    if sec <= 0: return "DARHOL"
-    if sec < 3600: return f"{sec/60:.2f} minut"
-    if sec < 86400: return f"{sec/3600:.2f} soat"
-    if sec < 31536000: return f"{sec/86400:.2f} kun"
-    return f"{int(sec/31536000):,} yil"
-
 # 4. ASOSIY INTERFEYS
-st.markdown("<h1 style='text-align:center;'>L1GHTDREAM AI PRO</h1>", unsafe_allow_html=True)
-pwd = st.text_input("ENTER ACCESS KEY >", type="password", key="pwd_input", help="NLP va AI tahlil uchun")
+st.markdown("<h1 style='text-align:center;'>L1GHTDREAM AI PRO: GRAPHICAL ANALYSIS</h1>", unsafe_allow_html=True)
+pwd = st.text_input("ENTER ACCESS KEY >", type="password", key="pwd_input")
 
 if pwd:
-    # --- A. TOKENIZATION (NLP) ---
+    # --- A. NLP TOKENIZATION ---
     st.markdown("### [ 1. NLP TOKENIZATION ]")
     tokens_html = "".join([f"<div class='token-box'>{char}</div>" for char in pwd])
     st.markdown(f"<div>{tokens_html}</div>", unsafe_allow_html=True)
     
-    # Statistika va Superkompyuter vaqti
+    # Parametrlarni hisoblash
     u_c = sum(1 for c in pwd if c.isupper())
     d_c = sum(1 for c in pwd if c.isdigit())
     s_c = sum(1 for c in pwd if c in string.punctuation)
     l_c = sum(1 for c in pwd if c.islower())
     
-    pool = 0
-    if l_c > 0: pool += 26
-    if u_c > 0: pool += 26
-    if d_c > 0: pool += 10
-    if s_c > 0: pool += 32
-    
-    crack_time = (pool ** len(pwd)) / 1e11 if len(pwd) > 0 else 0
-    st.error(f"🛑 SUPERCOMPUTER CRACK TIME: {format_time(crack_time)}")
-
-    # --- B. NEURAL ENGINE CALCULATIONS (AI) ---
-    st.markdown("### [ 2. NEURAL ENGINE CALCULATIONS ]")
+    # --- B. NEURAL CALCULATIONS ---
     x = np.array([len(pwd)/10, float(u_c), float(d_c), float(s_c)])
     w = np.array([0.4, 0.7, 0.3, 0.9])
-    
-    z_relu = x * w - 0.5
-    filtered = relu(z_relu)
-    
-    final_z = np.sum(filtered) - 1.2
-    ai_score = sigmoid(final_z)
-    
-    target = 1.0 if (len(pwd) >= 12 and u_c > 0 and d_c > 0) else 0.2
-    error = target - ai_score
+    filtered = relu(x * w - 0.5)
+    ai_score = sigmoid(np.sum(filtered) - 1.2)
 
-    # Ustunlar (Indentation error bo'lmasligi uchun ehtiyotkorlik bilan)
-    c1, c2, c3 = st.columns(3)
+    # --- C. GRAFIK KO'RINISH (YANGI QISM) ---
+    st.markdown("### [ 2. VISUAL SECURITY DASHBOARD ]")
     
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        # 1. Gauge Chart (Spidometr ko'rinishidagi grafik)
+        fig_gauge = go.Figure(go.Indicator(
+            mode = "gauge+number",
+            value = ai_score * 100,
+            title = {'text': "AI Security Score (%)", 'font': {'color': "#00FF00"}},
+            gauge = {
+                'axis': {'range': [0, 100], 'tickcolor': "#00FF00"},
+                'bar': {'color': "#00FF00"},
+                'steps': [
+                    {'range': [0, 40], 'color': "rgba(255, 0, 0, 0.3)"},
+                    {'range': [40, 75], 'color': "rgba(255, 255, 0, 0.3)"},
+                    {'range': [75, 100], 'color': "rgba(0, 255, 0, 0.3)"}],
+                'threshold': {
+                    'line': {'color': "white", 'width': 4},
+                    'thickness': 0.75,
+                    'value': 90}}))
+        fig_gauge.update_layout(paper_bgcolor='rgba(0,0,0,0)', font={'color': "#00FF00"})
+        st.plotly_chart(fig_gauge, use_container_width=True)
+
+    with col2:
+        # 2. Bar Chart (Parametrlar taqsimoti)
+        fig_bar = go.Figure(data=[go.Bar(
+            x=['Uzunlik', 'Katta harf', 'Raqam', 'Belgi'],
+            y=filtered,
+            marker_color='#00FF00'
+        )])
+        fig_bar.update_layout(
+            title={'text': "Neyron Signallar Filtratsiyasi (ReLU)", 'font': {'color': "#00FF00"}},
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font={'color': "#00FF00"},
+            yaxis=dict(gridcolor='rgba(0,255,0,0.1)')
+        )
+        st.plotly_chart(fig_bar, use_container_width=True)
+
+    # --- D. TEPADAGI NATIJALARNI SAQLAB QOLISH ---
+    st.markdown("### [ 3. TECHNICAL LOGS ]")
+    c1, c2, c3 = st.columns(3)
     with c1:
         st.write("**ReLU Layer:**")
         st.code(f"Filtered: {filtered}")
-        st.caption("Manfiy signallar (zaifliklar) filtrlandi.")
-        
     with c2:
         st.write("**Sigmoid Output:**")
         st.code(f"AI Score: {ai_score:.4f}")
-        st.caption("Ehtimollik: 0 va 1 oralig'ida.")
-        
     with c3:
-        st.write("**Backpropagation:**")
-        st.code(f"Error: {error:.4f}\nDelta: {error * 0.1:.4f}")
-        st.caption("Xatolik tahlil qilinib, og'irliklar yangilandi.")
+        st.write("**Architecture:**")
+        st.info("RNN Moduli faol" if len(pwd) > 8 else "CNN Moduli faol")
 
-    # --- C. ARCHITECTURAL ANALYSIS ---
-    st.markdown("### [ 3. ARCHITECTURAL ANALYSIS ]")
-    if s_c > 0:
-        st.info(f"RNN MODULI: '{pwd}' tarkibidagi maxsus belgilar ketma-ketlik mantiqini kuchaytirdi.")
-    elif len(pwd) > 10:
-        st.info("LSTM (RNN) MODULI: Uzun matnli xotira bloklari tahlili ishga tushirildi.")
-    else:
-        st.warning("CNN MODULI: Qisqa parol. Tizim faqat vizual patternlarni (shakllarni) tahlil qilmoqda.")
-
-    # Yakuniy status
     if ai_score > 0.75:
-        st.success(f"✅ TIZIM XAVFSIZ (AI SCORE: {ai_score*100:.1f}%)")
+        st.success("✅ TIZIM XAVFSIZ")
         st.balloons()
     else:
-        st.error(f"⚠️ TIZIM ZAIF (AI SCORE: {ai_score*100:.1f}%)")
-
-# 5. SIDEBAR
-with st.sidebar:
-    st.markdown(f"<b>DEVELOPER:</b> Bakirxo'jayev Moxirxo'ja<br><b>NICK:</b> LIMITLESS", unsafe_allow_html=True)
+        st.error("⚠️ TIZIM ZAIF")
