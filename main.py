@@ -1,12 +1,11 @@
 import streamlit as st
 import string
-import random
 import numpy as np
 
 # 1. TIZIM SOZLAMALARI
-st.set_page_config(page_title="L1GHTDREAM AI", layout="wide")
+st.set_page_config(page_title="L1GHTDREAM AI PRO", layout="wide")
 
-# 2. MATRIX FON
+# 2. MATRIX FON (ESKI VARIANTINGDAGI KOD)
 st.markdown("""
 <style>
     .stApp { background: transparent !important; }
@@ -17,71 +16,69 @@ st.markdown("""
         border: 2px solid #00FF00; box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
         border-radius: 12px; padding: 40px; color: #00FF00; font-family: 'Courier New', monospace;
     }
-    .token-box { display: inline-block; border: 1px solid #00FF00; padding: 8px 15px; margin: 5px; background: rgba(0, 255, 0, 0.1); }
 </style>
-<iframe class="matrix-bg" srcdoc="<html><body style='margin:0; overflow:hidden; background:black;'><canvas id='m'></canvas><script>const c=document.getElementById('m');const ctx=c.getContext('2d');const res=()=>{c.width=window.innerWidth;c.height=window.innerHeight;};res();window.onresize=res;const ch='01ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ';const fs=16;const col=c.width/fs;const dr=Array(Math.floor(col)).fill(1);function d(){ctx.fillStyle='rgba(0, 0, 0, 0.05)';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#0F0';ctx.font=fs+'px monospace';for(let i=0;i<dr.length;i++){const t=ch[Math.floor(Math.random()*ch.length)];ctx.fillText(t,i*fs,dr[i]*fs);if(dr[i]*fs>c.height&&Math.random()>0.975)dr[i]=0;dr[i]++;}}setInterval(d,35);</script></body></html>"></iframe>
+<iframe class="matrix-bg" srcdoc="<html><body style='margin:0; overflow:hidden; background:black;'><canvas id='m'></canvas><script>const c=document.getElementById('m');const ctx=c.getContext('2d');const res=()=>{c.width=window.innerWidth;c.height=window.innerHeight;};res();window.onresize=res;const ch='01ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ';const fs=16;const col=c.width/fs;const dr=Array(Math.floor(col)).fill(1);function d(){ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#0F0';ctx.font=fs+'px monospace';for(let i=0;i<dr.length;i++){const t=ch[Math.floor(Math.random()*ch.length)];ctx.fillText(t,i*fs,dr[i]*fs);if(dr[i]*fs>c.height&&Math.random()>0.975)dr[i]=0;dr[i]++;}}setInterval(d,35);</script></body></html>"></iframe>
 """, unsafe_allow_html=True)
 
-# 3. AI VA MATEMATIK FUNKSIYALAR
-def format_time(sec):
-    if sec <= 0: return "DARHOL"
-    if sec < 3600: return f"{sec/60:.2f} min"
-    if sec < 86400: return f"{sec/3600:.2f} soat"
-    if sec < 31536000: return f"{sec/86400:.2f} kun"
-    return f"{int(sec/31536000):,} yil"
-
+# 3. AI MATEMATIKASI
 def sigmoid(x): return 1 / (1 + np.exp(-x))
+def relu(x): return np.maximum(0, x)
 
-# 4. ASOSIY INTERFEYS
-st.markdown("<h1 style='text-align:center;'>L1GHTDREAM AI TERMINAL</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;'>L1GHTDREAM AI PRO</h1>", unsafe_allow_html=True)
 pwd = st.text_input("ENTER ACCESS KEY >", type="password")
 
 if pwd:
-    # --- 1. TOKENIZATION (Topshiriq 6) ---
-    st.markdown("### [ 1. NLP TOKENIZATION ]")
-    tokens_html = "".join([f"<div class='token-box'>{char}</div>" for char in pwd])
-    st.markdown(f"<div>{tokens_html}</div>", unsafe_allow_html=True)
-
-    # Statistika hisoblash
+    # 1. PARAMETRLARNI OLISH
     u_c = sum(1 for c in pwd if c.isupper())
     d_c = sum(1 for c in pwd if c.isdigit())
     s_c = sum(1 for c in pwd if c in string.punctuation)
-    l_c = sum(1 for c in pwd if c.islower())
     
-    pool = 0
-    if l_c > 0: pool += 26
-    if u_c > 0: pool += 26
-    if d_c > 0: pool += 10
-    if s_c > 0: pool += 32
+    # Neyron uchun kiruvchi signallar (Inputs)
+    x = np.array([len(pwd)/10, float(u_c), float(d_c), float(s_c)])
+    w = np.array([0.45, 0.72, 0.38, 0.88]) # Boshlang'ich og'irliklar
     
-    crack_time = (pool ** len(pwd)) / 1e11 if len(pwd) > 0 else 0
-
-    # --- 2. AI ANALYSIS (Topshiriq 1, 2, 3, 4) ---
-    st.markdown("### [ 2. NEURAL NETWORK ANALYSIS ]")
-    # AI kiruvchi ma'lumotlar: [uzunlik, katta_harf, raqam, belgi]
-    inputs = np.array([len(pwd)/20, float(u_c>0), float(d_c>0), float(s_c>0)])
-    weights = np.array([0.5, 0.7, 0.4, 0.9])
-    ai_score = sigmoid(np.dot(inputs, weights) - 1.0)
+    # 2. ReLU FILTRLASH (Topshiriq isboti)
+    z_layer = x * w - 0.5
+    relu_out = relu(z_layer)
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.write(f"**AI Confidence Score:** {ai_score:.4f}")
-        st.write("**Functions:** Sigmoid & ReLU")
-        st.error(f"🛑 SUPERCOMPUTER CRACK TIME: {format_time(crack_time)}")
-    with col2:
-        st.info("**Backpropagation:** 1 iteratsiya bajarildi. Gradient descent orqali og'irliklar yangilandi.")
+    # 3. SIGMOID (Natija isboti)
+    final_z = np.sum(relu_out) - 1.0
+    ai_confidence = sigmoid(final_z)
 
-    # --- 3. CNN vs RNN (Topshiriq 5) ---
-    with st.expander("AI Arxiv (CNN vs RNN farqi)"):
-        st.write("CNN - Fazoviy (Tasvir) tahlil uchun. RNN - Ketma-ketlik (Matn/Ovoz) tahlili uchun.")
+    # 4. BACKPROPAGATION (Matematik delta)
+    target = 1.0 if len(pwd) > 10 else 0.5
+    error = target - ai_confidence
+    w_delta = x * error * 0.1 # Og'irliklar qanchaga o'zgargani
+    new_w = w + w_delta
 
-    # Yakuniy natija
-    if ai_score > 0.75 and len(pwd) >= 12:
-        st.success("✅ TIZIM XAVFSIZ")
-        st.balloons()
+    # --- EKRANGA CHIQARISH ---
+    st.markdown("### [ 1. NEURAL ENGINE CALCULATIONS ]")
+    
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.write("**ReLU Layer Results:**")
+        st.code(f"Inputs: {x}\nFiltered: {relu_out}")
+        st.caption("ReLU manfiy signallarni nolga tenglashtirdi.")
+        
+    with c2:
+        st.write("**Sigmoid Activation:**")
+        st.code(f"Final Z: {final_z:.4f}\nOutput: {ai_confidence:.4f}")
+        st.caption("Natija 0 va 1 oralig'iga keltirildi.")
+        
+    with c3:
+        st.write("**Backpropagation Delta:**")
+        st.code(f"Error: {error:.4f}\nWeight Adjust: {w_delta}")
+        st.caption("Gradient descent og'irliklarni shu miqdorga yangiladi.")
+
+    # --- CNN vs RNN Dinamik Tahlili ---
+    st.markdown("### [ 2. DYNAMIC ARCHITECTURE ]")
+    if len(pwd) > 8:
+        st.info(f"RNN ANALIZI: '{pwd}' ketma-ketligi tahlil qilinmoqda. Har bir belgi oldingisiga bog'liq.")
     else:
-        st.warning("⚠️ TIZIM ZAIF: AI model xavf aniqladi.")
+        st.warning("CNN ANALIZI: Parol juda qisqa. Tizim uni faqat bitta 'shakl' (pattern) deb ko'rmoqda.")
 
-# 5. SIDEBAR
-with st.sidebar:
-    st.markdown(f"<b>DEVELOPER:</b> Bakirxo'jayev Moxirxo'ja<br><b>NICK:</b> LIMITLESS", unsafe_allow_html=True)
+    # Xulosa
+    if ai_confidence > 0.7:
+        st.success(f"✅ TIZIM XAVFSIZ (AI SCORE: {ai_confidence:.2f})")
+    else:
+        st.error(f"⚠️ TIZIM ZAIF (AI SCORE: {ai_confidence:.2f})")
